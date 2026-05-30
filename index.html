@@ -26,12 +26,14 @@
             color: var(--bk-brown);
             padding: 15px;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
         }
 
         .container {
             width: 100%;
-            max-width: 500px;
+            max-width: 600px;
             background: var(--bg-card);
             border: 3px solid var(--bk-brown);
             border-radius: 16px;
@@ -85,34 +87,29 @@
             outline: none;
         }
 
-        select:focus, input:focus {
-            border-color: var(--bk-orange);
-        }
-
         .chip-container {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
             margin-bottom: 15px;
         }
 
         .chip {
             background-color: var(--bk-cream);
             border: 2px solid var(--bk-brown);
-            padding: 12px;
+            padding: 10px 5px;
             border-radius: 8px;
             text-align: center;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.2s;
-            font-size: 13px;
+            font-size: 11px;
             text-transform: uppercase;
         }
 
         .chip.active {
             background-color: var(--bk-orange);
             color: white;
-            border-color: var(--bk-brown);
             transform: translateY(2px);
             box-shadow: inset 0 3px 5px rgba(0,0,0,0.2);
         }
@@ -126,12 +123,18 @@
             font-weight: bold;
         }
 
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
         button {
             width: 100%;
             padding: 15px;
             border: 2px solid var(--bk-brown);
             border-radius: 8px;
-            font-size: 18px;
+            font-size: 16px;
             font-weight: bold;
             cursor: pointer;
             text-transform: uppercase;
@@ -144,17 +147,61 @@
             box-shadow: 0 0px 0 var(--bk-brown);
         }
 
-        .btn-submit {
-            background-color: var(--bk-red);
-            color: white;
-            margin-bottom: 12px;
+        .btn-submit { background-color: var(--bk-red); color: white; }
+        .btn-export { background-color: var(--bk-gold); color: var(--bk-brown); }
+        .btn-clear-all { background-color: #7A7A7A; color: white; }
+
+        /* SECCIÓN TABLA DE REGISTROS */
+        .table-container {
+            width: 100%;
+            max-width: 600px;
+            background: white;
+            border: 3px solid var(--bk-brown);
+            border-radius: 16px;
+            padding: 15px;
+            box-shadow: 0 8px 0px var(--bk-brown);
+            overflow-x: auto;
         }
 
-        .btn-admin {
-            background-color: var(--bk-gold);
+        .table-title {
+            font-size: 18px;
             color: var(--bk-brown);
-            display: none;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            border-bottom: 2px solid var(--bk-orange);
+            padding-bottom: 5px;
         }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 12px;
+        }
+
+        th, td {
+            padding: 10px;
+            border-bottom: 1px solid #DDD;
+            white-space: nowrap;
+        }
+
+        th {
+            background-color: var(--bk-cream);
+            color: var(--bk-brown);
+            text-transform: uppercase;
+        }
+
+        .btn-delete {
+            background-color: var(--bk-red);
+            color: white;
+            border: 1px solid var(--bk-brown);
+            padding: 4px 8px;
+            font-size: 11px;
+            border-radius: 4px;
+            box-shadow: none;
+            width: auto;
+        }
+        .btn-delete:active { transform: none; }
 
         .toast {
             position: fixed;
@@ -168,17 +215,15 @@
             font-weight: bold;
             display: none;
             z-index: 1000;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h2>🍔 Control de Mermas BK 🍟</h2>
-
+        <h2>🍔 Registro Local de Mermas 🍟</h2>
         <div id="alertAdmin" class="alert-admin">
-            ⚠️ ACCESO LIMITADO: No posees permisos de edición de cierre de día. Dirigirse a Christopher López o Matías Pizarro.
+            ⚠️ ACCESO LIMITADO: No posees permisos de edición para exportar o vaciar historial. Dirigirse a Christopher López o Matías Pizarro.
         </div>
 
         <form id="mermaForm">
@@ -216,7 +261,7 @@
             </select>
 
             <label for="cantidad">Cantidad</label>
-            <input type="number" id="cantidad" min="0.001" step="0.001" placeholder="Ingresa cantidad numérica" required>
+            <input type="number" id="cantidad" min="0.001" step="0.001" placeholder="Ingresa cantidad" required>
             <span id="unitLabel" class="unit-label"></span>
 
             <label for="motivo">Motivo</label>
@@ -230,31 +275,43 @@
             </select>
 
             <label for="comentarios">Justificación / Detalles</label>
-            <textarea id="comentarios" rows="2" placeholder="Notas adicionales opcionales..."></textarea>
+            <textarea id="comentarios" rows="2" placeholder="Notas opcionales..."></textarea>
 
-            <button type="submit" class="btn-submit">💾 Guardar Merma</button>
-            <button type="button" id="btnFinalizar" class="btn-admin" onclick="finalizarDia()">🏁 Finalizar Día</button>
+            <div class="btn-group">
+                <button type="submit" class="btn-submit">💾 Registrar Fila</button>
+                <button type="button" id="btnExport" class="btn-export" onclick="exportarCSV()" style="display:none;">📥 Exportar a CSV (Excel)</button>
+                <button type="button" id="btnClear" class="btn-clear-all" onclick="borrarTodo()" style="display:none;">🗑️ Vaciar Todo</button>
+            </div>
         </form>
     </div>
 
-    <div id="toast" class="toast">¡Guardado en Sheets!</div>
+    <!-- TABLA EN VIVO DESGLOSADA -->
+    <div class="table-container">
+        <div class="table-title">📋 Desglose de Mermas Registradas</div>
+        <table id="mermasTable">
+            <thead>
+                <tr>
+                    <th>Fecha/Hora</th>
+                    <th>Responsable</th>
+                    <th>Turno</th>
+                    <th>Categoría</th>
+                    <th>Producto</th>
+                    <th>Cant.</th>
+                    <th>Medida</th>
+                    <th>Motivo</th>
+                    <th>Detalle</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Se rellena dinámicamente -->
+            </tbody>
+        </table>
+    </div>
+
+    <div id="toast" class="toast"></div>
 
     <script>
-        // Tu ID real de Google Form extraído de tu captura de pantalla
-        const FORM_ID = "1H86V8-p7h_6FkZ-Wqf8Z1ZfD_fV_6Z68H1V8_X6f8Z8";
-        
-        // Mapeo de campos del conector
-        const ENTRY_IDS = {
-            responsable: "entry.1706680415",
-            turno: "entry.245814524",
-            categoria: "entry.1118679163_cat", // Se envía dinámico
-            producto: "entry.1118679163",
-            cantidad: "entry.1158140409",
-            motivo: "entry.1147814402",
-            comentarios: "entry.1221768822"
-        };
-
-        // MATRIZ COMPLETA DE PRODUCTOS REALES (Mapeada de tu Excel)
         const productosPorCategoria = {
             "Carnes": [
                 { nombre: "Whopper Patty", unidad: "Unidades" },
@@ -309,14 +366,16 @@
         };
 
         let categoriaGlobal = "";
+        let mermasData = JSON.parse(localStorage.getItem("bk_mermas_data")) || [];
 
-        // Reloj inteligente para setear el turno del restaurante
         window.onload = function() {
             const hora = new Date().getHours();
             const comboTurno = document.getElementById("turno");
             if (hora >= 6 && hora < 14) comboTurno.value = "AM";
             else if (hora >= 14 && hora < 22) comboTurno.value = "PM";
             else comboTurno.value = "Trasnoche";
+            
+            actualizarTabla();
         };
 
         function seleccionarCategoria(cat, elemento) {
@@ -340,32 +399,135 @@
         function actualizarUnidad() {
             const combo = document.getElementById("producto");
             const opcion = combo.options[combo.selectedIndex];
-            const unidad = opcion.getAttribute('data-unit');
-            document.getElementById("unitLabel").textContent = `Unidad de medida: ${unidad}`;
+            document.getElementById("unitLabel").textContent = `Unidad de medida: ${opcion.getAttribute('data-unit')}`;
         }
 
-        // Evalúa permisos reales basados en tu CONFIG_RESPONSABLES
         function evaluarRol() {
             const combo = document.getElementById("responsable");
-            const opcionSeleccionada = combo.options[combo.selectedIndex];
-            const permiso = opcionSeleccionada.getAttribute('data-permiso');
+            const opcion = combo.options[combo.selectedIndex];
+            const permiso = opcion.getAttribute('data-permiso');
             
             const alertAdmin = document.getElementById("alertAdmin");
-            const btnFinalizar = document.getElementById("btnFinalizar");
+            const btnExport = document.getElementById("btnExport");
+            const btnClear = document.getElementById("btnClear");
 
             if (permiso === "CONCEDIDO") {
                 alertAdmin.style.display = "none";
-                btnFinalizar.style.display = "block";
+                if(mermasData.length > 0) {
+                    btnExport.style.display = "block";
+                    btnClear.style.display = "block";
+                }
             } else {
                 alertAdmin.style.display = "block";
-                btnFinalizar.style.display = "none";
+                btnExport.style.display = "none";
+                btnClear.style.display = "none";
             }
         }
 
-        function finalizarDia() {
-            if(confirm("¿Confirmas que deseas efectuar el cierre de mermas para el estado de este día?")) {
-                showToast("🏁 Estado del día cambiado a Cerrado");
+        // GUARDAR LOCALMENTE
+        document.getElementById("mermaForm").addEventListener("submit", function(e) {
+            e.preventDefault();
+
+            const comboProd = document.getElementById("producto");
+            const unidadMedida = comboProd.options[comboProd.selectedIndex].getAttribute('data-unit');
+
+            const nuevaMerma = {
+                id: Date.now(),
+                fecha: new Date().toLocaleString('es-CL'),
+                responsable: document.getElementById("responsable").value,
+                turno: document.getElementById("turno").value,
+                categoria: categoriaGlobal,
+                producto: comboProd.value,
+                cantidad: document.getElementById("cantidad").value,
+                unidad: unidadMedida,
+                motivo: document.getElementById("motivo").value,
+                comentarios: document.getElementById("comentarios").value || "-"
+            };
+
+            mermasData.push(nuevaMerma);
+            localStorage.setItem("bk_mermas_data", JSON.stringify(mermasData));
+            
+            actualizarTabla();
+            evaluarRol();
+            showToast("✏️ Registro agregado al desglose");
+
+            document.getElementById("cantidad").value = "";
+            document.getElementById("comentarios").value = "";
+        });
+
+        function actualizarTabla() {
+            const tbody = document.querySelector("#mermasTable tbody");
+            tbody.innerHTML = "";
+
+            mermasData.forEach((item, index) => {
+                let row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${item.fecha}</td>
+                    <td>${item.responsable}</td>
+                    <td>${item.turno}</td>
+                    <td>${item.categoria}</td>
+                    <td><strong>${item.producto}</strong></td>
+                    <td>${item.cantidad}</td>
+                    <td>${item.unidad}</td>
+                    <td>${item.motivo}</td>
+                    <td>${item.comentarios}</td>
+                    <td><button class="btn-delete" onclick="eliminarRegistro(${item.id})">Borrar</button></td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function eliminarRegistro(id) {
+            if(confirm("¿Seguro que deseas remover este registro específico del cuadro?")) {
+                mermasData = mermasData.filter(item => item.id !== id);
+                localStorage.setItem("bk_mermas_data", JSON.stringify(mermasData));
+                actualizarTabla();
+                evaluarRol();
+                showToast("🗑️ Registro eliminado");
             }
+        }
+
+        function borrarTodo() {
+            if(confirm("🚨 ¿Estás completamente seguro de vaciar todo el cuadro de mermas acumuladas?")) {
+                mermasData = [];
+                localStorage.removeItem("bk_mermas_data");
+                actualizarTabla();
+                evaluarRol();
+                showToast("💥 Historial completamente vaciado");
+            }
+        }
+
+        // EXPORTAR A CSV COMPATIBLE CON EXCEL
+        function exportarCSV() {
+            if(mermasData.length === 0) return;
+
+            let csvContent = "\uFEFF"; // Previene problemas con acentos en Excel (UTF-8 BOM)
+            csvContent += "Fecha y Hora;Responsable;Turno;Categoria;Producto;Cantidad;Unidad_Medida;Motivo;Justificacion\n";
+
+            mermasData.forEach(item => {
+                let fila = [
+                    item.fecha,
+                    item.responsable,
+                    item.turno,
+                    item.categoria,
+                    item.producto,
+                    item.cantidad,
+                    item.unidad,
+                    item.motivo,
+                    item.comentarios
+                ].map(texto => `"${texto.replace(/"/g, '""')}"`).join(";");
+                csvContent += fila + "\n";
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", `Mermas_BK_LasRastras_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showToast("📥 Descargando archivo para análisis...");
         }
 
         function showToast(msj) {
@@ -374,40 +536,6 @@
             toast.style.display = "block";
             setTimeout(() => { toast.style.display = "none"; }, 3000);
         }
-
-        // Envío por puente directo a tu Formulario de Google
-        document.getElementById("mermaForm").addEventListener("submit", function(e) {
-            e.preventDefault();
-
-            const resp = document.getElementById("responsable").value;
-            const turno = document.getElementById("turno").value;
-            const prod = document.getElementById("producto").value;
-            const cant = document.getElementById("cantidad").value;
-            const mot = document.getElementById("motivo").value;
-            const com = document.getElementById("comentarios").value;
-
-            const urlForm = `https://docs.google.com/forms/d/${FORM_ID}/formResponse`;
-            
-            const formData = new FormData();
-            formData.append(ENTRY_IDS.responsable, resp);
-            formData.append(ENTRY_IDS.turno, turno);
-            formData.append(ENTRY_IDS.producto, prod);
-            formData.append(ENTRY_IDS.cantidad, cant);
-            formData.append(ENTRY_IDS.motivo, mot);
-            formData.append(ENTRY_IDS.comentarios, com);
-
-            fetch(urlForm, {
-                method: "POST",
-                mode: "no-cors",
-                body: formData
-            }).then(() => {
-                showToast("✅ Guardado en Sheets");
-                document.getElementById("cantidad").value = "";
-                document.getElementById("comentarios").value = "";
-            }).catch(err => {
-                alert("Error de red al despachar: " + err);
-            });
-        });
     </script>
 </body>
 </html>
