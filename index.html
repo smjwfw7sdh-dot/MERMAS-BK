@@ -5,237 +5,51 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Control de Mermas - Burger King</title>
     <style>
-        :root {
-            --bk-cream: #FDF6E2;
-            --bk-brown: #502314;
-            --bk-red: #DA291C;
-            --bk-orange: #F47321;
-            --bk-gold: #FFB81C;
-            --bg-card: #FFFFFF;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Arial Black', sans-serif;
-        }
-
-        body {
-            background-color: var(--bk-cream);
-            color: var(--bk-brown);
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 600px;
-            background: var(--bg-card);
-            border: 3px solid var(--bk-brown);
-            border-radius: 16px;
-            padding: 20px;
-            box-shadow: 0 8px 0px var(--bk-brown);
-        }
-
-        h2 {
-            text-align: center;
-            color: var(--bk-red);
-            font-size: 24px;
-            margin-bottom: 20px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            border-bottom: 3px dashed var(--bk-orange);
-            padding-bottom: 10px;
-        }
-
-        .alert-admin {
-            background-color: #FFF0F0;
-            border: 2px solid var(--bk-red);
-            color: var(--bk-red);
-            padding: 12px;
-            border-radius: 8px;
-            font-weight: bold;
-            text-align: center;
-            margin-bottom: 15px;
-            display: none;
-            font-size: 13px;
-        }
-
-        label {
-            display: block;
-            font-weight: bold;
-            margin-bottom: 8px;
-            color: var(--bk-brown);
-            font-size: 14px;
-            text-transform: uppercase;
-        }
-
-        select, input[type="number"], textarea {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid var(--bk-brown);
-            border-radius: 8px;
-            background-color: var(--bk-cream);
-            color: var(--bk-brown);
-            font-size: 16px;
-            font-weight: bold;
-            margin-bottom: 15px;
-            outline: none;
-        }
-
-        .chip-container {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            margin-bottom: 15px;
-        }
-
-        .chip {
-            background-color: var(--bk-cream);
-            border: 2px solid var(--bk-brown);
-            padding: 10px 5px;
-            border-radius: 8px;
-            text-align: center;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-size: 11px;
-            text-transform: uppercase;
-        }
-
-        .chip.active {
-            background-color: var(--bk-orange);
-            color: white;
-            transform: translateY(2px);
-            box-shadow: inset 0 3px 5px rgba(0,0,0,0.2);
-        }
-
-        .unit-label {
-            font-size: 13px;
-            color: var(--bk-orange);
-            margin-top: -10px;
-            margin-bottom: 15px;
-            display: block;
-            font-weight: bold;
-        }
-
-        .btn-group {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        button {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid var(--bk-brown);
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            text-transform: uppercase;
-            box-shadow: 0 4px 0 var(--bk-brown);
-            transition: transform 0.1s, box-shadow 0.1s;
-        }
-
-        button:active {
-            transform: translateY(4px);
-            box-shadow: 0 0px 0 var(--bk-brown);
-        }
-
+        :root { --bk-cream: #FDF6E2; --bk-brown: #502314; --bk-red: #DA291C; --bk-orange: #F47321; --bk-gold: #FFB81C; --bg-card: #FFFFFF; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Arial Black', sans-serif; }
+        body { background-color: var(--bk-cream); color: var(--bk-brown); padding: 15px; display: flex; flex-direction: column; align-items: center; gap: 20px; }
+        .container { width: 100%; max-width: 600px; background: var(--bg-card); border: 3px solid var(--bk-brown); border-radius: 16px; padding: 20px; box-shadow: 0 8px 0px var(--bk-brown); }
+        h2 { text-align: center; color: var(--bk-red); font-size: 24px; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; border-bottom: 3px dashed var(--bk-orange); padding-bottom: 10px; }
+        .alert-admin { background-color: #FFF0F0; border: 2px solid var(--bk-red); color: var(--bk-red); padding: 12px; border-radius: 8px; font-weight: bold; text-align: center; margin-bottom: 15px; display: none; font-size: 13px; }
+        label { display: block; font-weight: bold; margin-bottom: 8px; color: var(--bk-brown); font-size: 14px; text-transform: uppercase; }
+        select, input[type="number"], input[type="date"], input[type="time"], textarea { width: 100%; padding: 12px; border: 2px solid var(--bk-brown); border-radius: 8px; background-color: var(--bk-cream); color: var(--bk-brown); font-size: 16px; font-weight: bold; margin-bottom: 15px; outline: none; }
+        .chip-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 15px; }
+        .chip { background-color: var(--bk-cream); border: 2px solid var(--bk-brown); padding: 10px 5px; border-radius: 8px; text-align: center; font-weight: bold; cursor: pointer; transition: all 0.2s; font-size: 11px; text-transform: uppercase; }
+        .chip.active { background-color: var(--bk-orange); color: white; transform: translateY(2px); box-shadow: inset 0 3px 5px rgba(0,0,0,0.2); }
+        .unit-label { font-size: 13px; color: var(--bk-orange); margin-top: -10px; margin-bottom: 15px; display: block; font-weight: bold; }
+        .btn-group { display: flex; flex-direction: column; gap: 10px; }
+        button { width: 100%; padding: 15px; border: 2px solid var(--bk-brown); border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; text-transform: uppercase; box-shadow: 0 4px 0 var(--bk-brown); transition: transform 0.1s, box-shadow 0.1s; }
+        button:active { transform: translateY(4px); box-shadow: 0 0px 0 var(--bk-brown); }
         .btn-submit { background-color: var(--bk-red); color: white; }
         .btn-export { background-color: var(--bk-gold); color: var(--bk-brown); }
         .btn-clear-all { background-color: #7A7A7A; color: white; }
-
-        /* SECCIÓN TABLA DE REGISTROS */
-        .table-container {
-            width: 100%;
-            max-width: 600px;
-            background: white;
-            border: 3px solid var(--bk-brown);
-            border-radius: 16px;
-            padding: 15px;
-            box-shadow: 0 8px 0px var(--bk-brown);
-            overflow-x: auto;
-        }
-
-        .table-title {
-            font-size: 18px;
-            color: var(--bk-brown);
-            margin-bottom: 12px;
-            text-transform: uppercase;
-            border-bottom: 2px solid var(--bk-orange);
-            padding-bottom: 5px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: left;
-            font-size: 12px;
-        }
-
-        th, td {
-            padding: 10px;
-            border-bottom: 1px solid #DDD;
-            white-space: nowrap;
-        }
-
-        th {
-            background-color: var(--bk-cream);
-            color: var(--bk-brown);
-            text-transform: uppercase;
-        }
-
-        .btn-delete {
-            background-color: var(--bk-red);
-            color: white;
-            border: 1px solid var(--bk-brown);
-            padding: 4px 8px;
-            font-size: 11px;
-            border-radius: 4px;
-            box-shadow: none;
-            width: auto;
-        }
-        .btn-delete:active { transform: none; }
-
-        .toast {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: var(--bk-brown);
-            color: white;
-            padding: 12px 25px;
-            border-radius: 25px;
-            font-weight: bold;
-            display: none;
-            z-index: 1000;
-        }
+        .table-container { width: 100%; max-width: 600px; background: white; border: 3px solid var(--bk-brown); border-radius: 16px; padding: 15px; box-shadow: 0 8px 0px var(--bk-brown); overflow-x: auto; }
+        .table-title { font-size: 18px; color: var(--bk-brown); margin-bottom: 12px; text-transform: uppercase; border-bottom: 2px solid var(--bk-orange); padding-bottom: 5px; }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; }
+        th, td { padding: 10px; border-bottom: 1px solid #DDD; white-space: nowrap; }
+        th { background-color: var(--bk-cream); color: var(--bk-brown); text-transform: uppercase; }
+        .btn-delete { background-color: var(--bk-red); color: white; border: 1px solid var(--bk-brown); padding: 4px 8px; font-size: 11px; border-radius: 4px; box-shadow: none; width: auto; }
+        .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background-color: var(--bk-brown); color: white; padding: 12px 25px; border-radius: 25px; font-weight: bold; display: none; z-index: 1000; }
     </style>
 </head>
 <body>
 
     <div class="container">
         <h2>🍔 Registro Local de Mermas 🍟</h2>
-        <div id="alertAdmin" class="alert-admin">
-            ⚠️ ACCESO LIMITADO: No posees permisos de edición para exportar o vaciar historial. Dirigirse a Christopher López o Matías Pizarro.
-        </div>
+        <div id="alertAdmin" class="alert-admin">⚠️ ACCESO LIMITADO: No posees permisos de edición para exportar o vaciar historial.</div>
 
         <form id="mermaForm">
+            <label for="fecha">Fecha</label>
+            <input type="date" id="fecha" required>
+            <label for="hora">Hora</label>
+            <input type="time" id="hora" required>
+
             <label for="responsable">Responsable</label>
             <select id="responsable" required onchange="evaluarRol()">
                 <option value="" disabled selected>-- Selecciona tu Nombre --</option>
                 <option value="Christopher López" data-permiso="CONCEDIDO">Christopher López (Gerente)</option>
                 <option value="Yennifer Franco" data-permiso="DENEGADO">Yennifer Franco (Subgerente)</option>
                 <option value="Matías Pizarro" data-permiso="CONCEDIDO">Matías Pizarro (Administrador)</option>
-                <option value="Paola Martínez" data-permiso="DENEGADO">Paola Martínez (Administrador)</option>
-                <option value="Ivannia Escobar" data-permiso="DENEGADO">Ivannia Escobar (Administrador)</option>
-                <option value="Ignacia González" data-permiso="DENEGADO">Ignacia González (Crew Máster)</option>
             </select>
 
             <label for="turno">Turno</label>
@@ -272,6 +86,7 @@
                 <option value="Caída al piso">Caída al piso</option>
                 <option value="Error de preparación">Error de preparación</option>
                 <option value="Mal estado de origen">Mal estado de origen</option>
+                <option value="OPERACIÓN - O">OPERACIÓN - O</option>
             </select>
 
             <label for="comentarios">Justificación / Detalles</label>
@@ -279,33 +94,23 @@
 
             <div class="btn-group">
                 <button type="submit" class="btn-submit">💾 Registrar Fila</button>
-                <button type="button" id="btnExport" class="btn-export" onclick="exportarCSV()" style="display:none;">📥 Exportar a CSV (Excel)</button>
-                <button type="button" id="btnClear" class="btn-clear-all" onclick="borrarTodo()" style="display:none;">🗑️ Vaciar Todo</button>
+            </div>
+            
+            <div id="adminPanel" style="display:none; margin-top:20px; border-top: 2px solid var(--bk-brown); padding-top:15px;">
+                <label>Periodo para Exportar</label>
+                <input type="date" id="fechaInicio">
+                <input type="date" id="fechaFin">
+                <button type="button" class="btn-export" onclick="exportarCSV()">📥 Exportar Periodo CSV</button>
+                <button type="button" class="btn-clear-all" onclick="borrarTodo()">🗑️ Vaciar Todo</button>
             </div>
         </form>
     </div>
 
-    <!-- TABLA EN VIVO DESGLOSADA -->
     <div class="table-container">
         <div class="table-title">📋 Desglose de Mermas Registradas</div>
         <table id="mermasTable">
-            <thead>
-                <tr>
-                    <th>Fecha/Hora</th>
-                    <th>Responsable</th>
-                    <th>Turno</th>
-                    <th>Categoría</th>
-                    <th>Producto</th>
-                    <th>Cant.</th>
-                    <th>Medida</th>
-                    <th>Motivo</th>
-                    <th>Detalle</th>
-                    <th>Acción</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Se rellena dinámicamente -->
-            </tbody>
+            <thead><tr><th>Fecha</th><th>Hora</th><th>Resp.</th><th>Prod.</th><th>Cant.</th><th>Motivo</th><th>Acción</th></tr></thead>
+            <tbody></tbody>
         </table>
     </div>
 
@@ -313,68 +118,21 @@
 
     <script>
         const productosPorCategoria = {
-            "Carnes": [
-                { nombre: "Whopper Patty", unidad: "Unidades" },
-                { nombre: "Mega Patty", unidad: "Unidades" },
-                { nombre: "Rebel Patty", unidad: "Unidades" },
-                { nombre: "Hamburguesa XT", unidad: "Unidades" },
-                { nombre: "Chicken Patty", unidad: "Unidades" },
-                { nombre: "Chicken Patty Vegetal", unidad: "Unidades" },
-                { nombre: "Pollo Jr.", unidad: "Unidades" }
-            ],
-            "Snacks": [
-                { nombre: "Aros de cebolla", unidad: "Unidades" },
-                { nombre: "Empanadas", unidad: "Unidades" },
-                { nombre: "Cheese Pillows", unidad: "Unidades" },
-                { nombre: "Chicken Fries", unidad: "Unidades" },
-                { nombre: "Nuggets", unidad: "Unidades" },
-                { nombre: "Nuggets Vegetal", unidad: "Unidades" }
-            ],
-            "Postres": [
-                { nombre: "Pie de Manzana", unidad: "Unidades" },
-                { nombre: "Pie de chocolate", unidad: "Unidades" },
-                { nombre: "Dona Tricolor", unidad: "Unidades" },
-                { nombre: "Dona Fresa", unidad: "Unidades" },
-                { nombre: "Muffin Chocolate", unidad: "Unidades" },
-                { nombre: "Helado", unidad: "Litros" },
-                { nombre: "Media Luna", unidad: "Unidades" }
-            ],
-            "Bebidas": [
-                { nombre: "Lata Crush", unidad: "Unidades" },
-                { nombre: "Lata Kem", unidad: "Unidades" },
-                { nombre: "Lata Pepsi", unidad: "Unidades" },
-                { nombre: "Lata Pepsi Zero", unidad: "Unidades" },
-                { nombre: "Red Bull", unidad: "Unidades" },
-                { nombre: "Red Bull Free", unidad: "Unidades" }
-            ],
-            "Pan": [
-                { nombre: "Pan Whopper", unidad: "Unidades" },
-                { nombre: "Pan Hamburguesa", unidad: "Unidades" },
-                { nombre: "Pan Papa", unidad: "Unidades" },
-                { nombre: "Pan Queso", unidad: "Unidades" },
-                { nombre: "Pan Sésamo Negro", unidad: "Unidades" },
-                { nombre: "Pan Masa Madre", unidad: "Unidades" },
-                { nombre: "Pan Especial", unidad: "Unidades" }
-            ],
-            "Otros": [
-                { nombre: "Vaso Cerámica", unidad: "Unidades" },
-                { nombre: "Lechuga", unidad: "Kg" },
-                { nombre: "Tomate", unidad: "Kg" },
-                { nombre: "Cebolla", unidad: "Kg" },
-                { nombre: "Lechuga Grill", unidad: "Kg" }
-            ]
+            "Carnes": [{ nombre: "Whopper Patty", unidad: "Unidades" }, { nombre: "Mega Patty", unidad: "Unidades" }],
+            "Snacks": [{ nombre: "Nuggets", unidad: "Unidades" }, { nombre: "Chicken Fries", unidad: "Unidades" }],
+            "Postres": [{ nombre: "Helado", unidad: "Litros" }, { nombre: "Pie de Manzana", unidad: "Unidades" }],
+            "Bebidas": [{ nombre: "Lata Pepsi", unidad: "Unidades" }],
+            "Pan": [{ nombre: "Pan Whopper", unidad: "Unidades" }],
+            "Otros": [{ nombre: "Lechuga", unidad: "Kg" }]
         };
 
         let categoriaGlobal = "";
         let mermasData = JSON.parse(localStorage.getItem("bk_mermas_data")) || [];
 
         window.onload = function() {
-            const hora = new Date().getHours();
-            const comboTurno = document.getElementById("turno");
-            if (hora >= 6 && hora < 14) comboTurno.value = "AM";
-            else if (hora >= 14 && hora < 22) comboTurno.value = "PM";
-            else comboTurno.value = "Trasnoche";
-            
+            const now = new Date();
+            document.getElementById("fecha").value = now.toISOString().split('T')[0];
+            document.getElementById("hora").value = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
             actualizarTabla();
         };
 
@@ -382,160 +140,73 @@
             categoriaGlobal = cat;
             document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
             elemento.classList.add('active');
-
             const comboProducto = document.getElementById("producto");
             comboProducto.innerHTML = '<option value="" disabled selected>-- Elige el Producto --</option>';
-
             productosPorCategoria[cat].forEach(p => {
                 let opt = document.createElement("option");
-                opt.value = p.nombre;
-                opt.textContent = p.nombre;
-                opt.setAttribute('data-unit', p.unidad);
+                opt.value = p.nombre; opt.textContent = p.nombre; opt.setAttribute('data-unit', p.unidad);
                 comboProducto.appendChild(opt);
             });
-            document.getElementById("unitLabel").textContent = "";
         }
 
         function actualizarUnidad() {
             const combo = document.getElementById("producto");
             const opcion = combo.options[combo.selectedIndex];
-            document.getElementById("unitLabel").textContent = `Unidad de medida: ${opcion.getAttribute('data-unit')}`;
+            document.getElementById("unitLabel").textContent = `Medida: ${opcion.getAttribute('data-unit')}`;
         }
 
         function evaluarRol() {
             const combo = document.getElementById("responsable");
             const opcion = combo.options[combo.selectedIndex];
-            const permiso = opcion.getAttribute('data-permiso');
-            
-            const alertAdmin = document.getElementById("alertAdmin");
-            const btnExport = document.getElementById("btnExport");
-            const btnClear = document.getElementById("btnClear");
-
-            if (permiso === "CONCEDIDO") {
-                alertAdmin.style.display = "none";
-                if(mermasData.length > 0) {
-                    btnExport.style.display = "block";
-                    btnClear.style.display = "block";
-                }
-            } else {
-                alertAdmin.style.display = "block";
-                btnExport.style.display = "none";
-                btnClear.style.display = "none";
-            }
+            const esAdmin = opcion.getAttribute('data-permiso') === "CONCEDIDO";
+            document.getElementById("adminPanel").style.display = esAdmin ? "block" : "none";
+            document.getElementById("alertAdmin").style.display = esAdmin ? "none" : "block";
         }
 
-        // GUARDAR LOCALMENTE
         document.getElementById("mermaForm").addEventListener("submit", function(e) {
             e.preventDefault();
-
-            const comboProd = document.getElementById("producto");
-            const unidadMedida = comboProd.options[comboProd.selectedIndex].getAttribute('data-unit');
-
             const nuevaMerma = {
                 id: Date.now(),
-                fecha: new Date().toLocaleString('es-CL'),
+                fecha: document.getElementById("fecha").value,
+                hora: document.getElementById("hora").value,
                 responsable: document.getElementById("responsable").value,
-                turno: document.getElementById("turno").value,
-                categoria: categoriaGlobal,
-                producto: comboProd.value,
+                producto: document.getElementById("producto").value,
                 cantidad: document.getElementById("cantidad").value,
-                unidad: unidadMedida,
-                motivo: document.getElementById("motivo").value,
-                comentarios: document.getElementById("comentarios").value || "-"
+                motivo: document.getElementById("motivo").value
             };
-
             mermasData.push(nuevaMerma);
             localStorage.setItem("bk_mermas_data", JSON.stringify(mermasData));
-            
             actualizarTabla();
-            evaluarRol();
-            showToast("✏️ Registro agregado al desglose");
-
-            document.getElementById("cantidad").value = "";
-            document.getElementById("comentarios").value = "";
+            showToast("✅ Registro guardado");
         });
 
         function actualizarTabla() {
             const tbody = document.querySelector("#mermasTable tbody");
             tbody.innerHTML = "";
-
-            mermasData.forEach((item, index) => {
-                let row = document.createElement("tr");
-                row.innerHTML = `
-                    <td>${item.fecha}</td>
-                    <td>${item.responsable}</td>
-                    <td>${item.turno}</td>
-                    <td>${item.categoria}</td>
-                    <td><strong>${item.producto}</strong></td>
-                    <td>${item.cantidad}</td>
-                    <td>${item.unidad}</td>
-                    <td>${item.motivo}</td>
-                    <td>${item.comentarios}</td>
-                    <td><button class="btn-delete" onclick="eliminarRegistro(${item.id})">Borrar</button></td>
-                `;
-                tbody.appendChild(row);
-            });
-        }
-
-        function eliminarRegistro(id) {
-            if(confirm("¿Seguro que deseas remover este registro específico del cuadro?")) {
-                mermasData = mermasData.filter(item => item.id !== id);
-                localStorage.setItem("bk_mermas_data", JSON.stringify(mermasData));
-                actualizarTabla();
-                evaluarRol();
-                showToast("🗑️ Registro eliminado");
-            }
-        }
-
-        function borrarTodo() {
-            if(confirm("🚨 ¿Estás completamente seguro de vaciar todo el cuadro de mermas acumuladas?")) {
-                mermasData = [];
-                localStorage.removeItem("bk_mermas_data");
-                actualizarTabla();
-                evaluarRol();
-                showToast("💥 Historial completamente vaciado");
-            }
-        }
-
-        // EXPORTAR A CSV COMPATIBLE CON EXCEL
-        function exportarCSV() {
-            if(mermasData.length === 0) return;
-
-            let csvContent = "\uFEFF"; // Previene problemas con acentos en Excel (UTF-8 BOM)
-            csvContent += "Fecha y Hora;Responsable;Turno;Categoria;Producto;Cantidad;Unidad_Medida;Motivo;Justificacion\n";
-
             mermasData.forEach(item => {
-                let fila = [
-                    item.fecha,
-                    item.responsable,
-                    item.turno,
-                    item.categoria,
-                    item.producto,
-                    item.cantidad,
-                    item.unidad,
-                    item.motivo,
-                    item.comentarios
-                ].map(texto => `"${texto.replace(/"/g, '""')}"`).join(";");
-                csvContent += fila + "\n";
+                tbody.innerHTML += `<tr><td>${item.fecha}</td><td>${item.hora}</td><td>${item.responsable.split(' ')[0]}</td><td>${item.producto}</td><td>${item.cantidad}</td><td>${item.motivo}</td><td><button class="btn-delete" onclick="eliminarRegistro(${item.id})">X</button></td></tr>`;
             });
+        }
 
+        function exportarCSV() {
+            const fInicio = document.getElementById("fechaInicio").value;
+            const fFin = document.getElementById("fechaFin").value;
+            let datosFiltrados = mermasData;
+            if (fInicio && fFin) {
+                datosFiltrados = mermasData.filter(item => item.fecha >= fInicio && item.fecha <= fFin);
+            }
+            let csvContent = "\uFEFFFecha;Hora;Responsable;Producto;Cantidad;Motivo\n";
+            datosFiltrados.forEach(i => { csvContent += `${i.fecha};${i.hora};${i.responsable};${i.producto};${i.cantidad};${i.motivo}\n`; });
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
             const link = document.createElement("a");
-            link.setAttribute("href", url);
-            link.setAttribute("download", `Mermas_BK_LasRastras_${new Date().toISOString().slice(0,10)}.csv`);
-            document.body.appendChild(link);
+            link.href = URL.createObjectURL(blob);
+            link.download = "Mermas_BK.csv";
             link.click();
-            document.body.removeChild(link);
-            showToast("📥 Descargando archivo para análisis...");
         }
 
-        function showToast(msj) {
-            const toast = document.getElementById("toast");
-            toast.textContent = msj;
-            toast.style.display = "block";
-            setTimeout(() => { toast.style.display = "none"; }, 3000);
-        }
+        function eliminarRegistro(id) { mermasData = mermasData.filter(i => i.id !== id); localStorage.setItem("bk_mermas_data", JSON.stringify(mermasData)); actualizarTabla(); }
+        function borrarTodo() { if(confirm("¿Vaciar todo?")) { mermasData = []; localStorage.removeItem("bk_mermas_data"); actualizarTabla(); } }
+        function showToast(msj) { const t = document.getElementById("toast"); t.textContent = msj; t.style.display = "block"; setTimeout(() => t.style.display = "none", 2000); }
     </script>
 </body>
 </html>
