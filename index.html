@@ -36,7 +36,7 @@
 
     <div class="container">
         <h2>🍔 Registro Local de Mermas 🍟</h2>
-        <div id="alertAdmin" class="alert-admin">⚠️ ACCESO LIMITADO: No posees permisos de edición para exportar o vaciar historial. Dirigirse a Christopher López o Matías Pizarro.</div>
+        <div id="alertAdmin" class="alert-admin">⚠️ ACCESO LIMITADO.</div>
 
         <form id="mermaForm">
             <label for="fecha">Fecha</label>
@@ -84,12 +84,12 @@
             <label for="motivo">Motivo</label>
             <select id="motivo" required>
                 <option value="" disabled selected>-- Selecciona el Motivo --</option>
-                <option value="**QUEMADO / CRUDO**">**QUEMADO / CRUDO**</option>
-                <option value="**VENCIDO / CADUCADO**">**VENCIDO / CADUCADO**</option>
-                <option value="**CAIDA AL PISO**">**CAIDA AL PISO**</option>
-                <option value="**ERROR PREPARACIÓN**">**ERROR PREPARACIÓN**</option>
-                <option value="**MAL ESTADO DE ORIGEN**">**MAL ESTADO DE ORIGEN**</option>
-                <option value="**OPERACION**">**OPERACION**</option>
+                <option value="QUEMADO / CRUDO">QUEMADO / CRUDO</option>
+                <option value="VENCIDO / CADUCADO">VENCIDO / CADUCADO</option>
+                <option value="CAIDA AL PISO">CAIDA AL PISO</option>
+                <option value="ERROR PREPARACIÓN">ERROR PREPARACIÓN</option>
+                <option value="MAL ESTADO DE ORIGEN">MAL ESTADO DE ORIGEN</option>
+                <option value="OPERACION">OPERACION</option>
             </select>
 
             <label for="comentarios">Justificación / Detalles</label>
@@ -98,7 +98,7 @@
             <div class="btn-group">
                 <button type="submit" class="btn-submit">💾 Registrar Fila</button>
                 <div id="adminControls" style="display:none; width: 100%;">
-                    <label>Periodo (opcional para exportar):</label>
+                    <label>Periodo para Exportar:</label>
                     <input type="date" id="fInicio">
                     <input type="date" id="fFin">
                     <button type="button" class="btn-export" onclick="exportarCSV()">📥 Exportar a CSV (Excel)</button>
@@ -111,9 +111,7 @@
     <div class="table-container">
         <div class="table-title">📋 Desglose de Mermas Registradas</div>
         <table id="mermasTable">
-            <thead>
-                <tr><th>F/H</th><th>Resp.</th><th>Turno</th><th>Producto</th><th>Cant.</th><th>Motivo</th><th>Acción</th></tr>
-            </thead>
+            <thead><tr><th>Fecha/Hora</th><th>Resp.</th><th>Turno</th><th>Prod.</th><th>Cant.</th><th>Motivo</th><th>X</th></tr></thead>
             <tbody></tbody>
         </table>
     </div>
@@ -135,10 +133,9 @@
 
         function determinarTurno(f, h) {
             const date = new Date(f + 'T00:00:00');
-            const dia = date.getDay(); // 0=Dom, 4=Jue, 5=Vie, 6=Sab
+            const dia = date.getDay(); 
             const [hh, mm] = h.split(':').map(Number);
             const minTotal = hh * 60 + mm;
-            
             if (dia === 4 || dia === 5 || dia === 6) {
                 if (minTotal >= 480 && minTotal <= 1020) return "AM";
                 if (minTotal >= 1021 && minTotal <= 1350) return "PM";
@@ -210,7 +207,7 @@
             const tbody = document.querySelector("#mermasTable tbody");
             tbody.innerHTML = "";
             mermasData.forEach(i => {
-                tbody.innerHTML += `<tr><td>${i.fecha}<br>${i.hora}</td><td>${i.responsable.split(' ')[0]}</td><td>${i.turno}</td><td>${i.producto}</td><td>${i.cantidad}</td><td>${i.motivo}</td><td><button class="btn-delete" onclick="eliminarRegistro(${i.id})">X</button></td></tr>`;
+                tbody.innerHTML += `<tr><td>${i.fecha} ${i.hora}</td><td>${i.responsable.split(' ')[0]}</td><td>${i.turno}</td><td>${i.producto}</td><td>${i.cantidad}</td><td><strong>${i.motivo}</strong></td><td><button class="btn-delete" onclick="eliminarRegistro(${i.id})">X</button></td></tr>`;
             });
         }
 
@@ -219,17 +216,22 @@
             const end = document.getElementById("fFin").value;
             let data = mermasData;
             if(start && end) data = data.filter(i => i.fecha >= start && i.fecha <= end);
-            let csv = "\uFEFFFecha;Hora;Responsable;Turno;Producto;Cantidad;Motivo\n";
-            data.forEach(i => csv += `${i.fecha};${i.hora};${i.responsable};${i.turno};${i.producto};${i.cantidad};${i.motivo}\n`);
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            
+            // CSV con punto y coma para separar columnas en Excel
+            let csv = "Fecha;Hora;Responsable;Turno;Producto;Cantidad;Motivo\n";
+            data.forEach(i => {
+                csv += `${i.fecha};${i.hora};${i.responsable};${i.turno};${i.producto};${i.cantidad};${i.motivo}\n`;
+            });
+            
+            const blob = new Blob(["\uFEFF", csv], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement("a");
             link.href = URL.createObjectURL(blob);
-            link.download = "Mermas.csv";
+            link.download = "Mermas_BK.csv";
             link.click();
         }
 
         function eliminarRegistro(id) { mermasData = mermasData.filter(i => i.id !== id); localStorage.setItem("bk_mermas_data", JSON.stringify(mermasData)); actualizarTabla(); }
-        function borrarTodo() { if(confirm("¿Seguro?")) { mermasData = []; localStorage.removeItem("bk_mermas_data"); actualizarTabla(); } }
+        function borrarTodo() { if(confirm("¿Seguro que deseas vaciar todo el historial?")) { mermasData = []; localStorage.removeItem("bk_mermas_data"); actualizarTabla(); } }
         function showToast(msj) { const t = document.getElementById("toast"); t.textContent = msj; t.style.display = "block"; setTimeout(() => t.style.display = "none", 2000); }
     </script>
 </body>
