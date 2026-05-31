@@ -36,7 +36,7 @@
 
     <div class="container">
         <h2>🍔 Registro Local de Mermas 🍟</h2>
-        <div id="alertAdmin" class="alert-admin">⚠️ ACCESO LIMITADO: No posees permisos de edición para exportar o vaciar historial.</div>
+        <div id="alertAdmin" class="alert-admin">⚠️ ACCESO LIMITADO: No posees permisos de edición para exportar o vaciar historial. Dirigirse a Christopher López o Matías Pizarro.</div>
 
         <form id="mermaForm">
             <label for="fecha">Fecha</label>
@@ -97,14 +97,13 @@
 
             <div class="btn-group">
                 <button type="submit" class="btn-submit">💾 Registrar Fila</button>
-            </div>
-            
-            <div id="adminPanel" style="display:none; margin-top:20px; border-top: 2px solid var(--bk-brown); padding-top:15px;">
-                <label>Periodo para Exportar</label>
-                <input type="date" id="fechaInicio">
-                <input type="date" id="fechaFin">
-                <button type="button" class="btn-export" onclick="exportarCSV()">📥 Exportar Periodo CSV</button>
-                <button type="button" class="btn-clear-all" onclick="borrarTodo()">🗑️ Vaciar Todo</button>
+                <div id="adminControls" style="display:none; width: 100%;">
+                    <label>Periodo (opcional para exportar):</label>
+                    <input type="date" id="fInicio" placeholder="Inicio">
+                    <input type="date" id="fFin" placeholder="Fin">
+                    <button type="button" class="btn-export" onclick="exportarCSV()">📥 Exportar a CSV (Excel)</button>
+                    <button type="button" class="btn-clear-all" onclick="borrarTodo()">🗑️ Vaciar Todo</button>
+                </div>
             </div>
         </form>
     </div>
@@ -112,7 +111,18 @@
     <div class="table-container">
         <div class="table-title">📋 Desglose de Mermas Registradas</div>
         <table id="mermasTable">
-            <thead><tr><th>F/H</th><th>Resp.</th><th>Prod.</th><th>Cant.</th><th>Motivo</th><th>Acción</th></tr></thead>
+            <thead>
+                <tr>
+                    <th>F/H</th>
+                    <th>Responsable</th>
+                    <th>Turno</th>
+                    <th>Cat.</th>
+                    <th>Producto</th>
+                    <th>Cant.</th>
+                    <th>Motivo</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
             <tbody></tbody>
         </table>
     </div>
@@ -135,7 +145,7 @@
         window.onload = function() {
             const now = new Date();
             document.getElementById("fecha").value = now.toISOString().split('T')[0];
-            document.getElementById("hora").value = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
+            document.getElementById("hora").value = now.toTimeString().slice(0,5);
             actualizarTabla();
         };
 
@@ -160,24 +170,24 @@
 
         function evaluarRol() {
             const combo = document.getElementById("responsable");
-            const opcion = combo.options[combo.selectedIndex];
-            const esAdmin = opcion.getAttribute('data-permiso') === "CONCEDIDO";
-            document.getElementById("adminPanel").style.display = esAdmin ? "block" : "none";
+            const esAdmin = combo.options[combo.selectedIndex].getAttribute('data-permiso') === "CONCEDIDO";
+            document.getElementById("adminControls").style.display = esAdmin ? "block" : "none";
             document.getElementById("alertAdmin").style.display = esAdmin ? "none" : "block";
         }
 
         document.getElementById("mermaForm").addEventListener("submit", function(e) {
             e.preventDefault();
-            const nuevaMerma = {
+            mermasData.push({
                 id: Date.now(),
                 fecha: document.getElementById("fecha").value,
                 hora: document.getElementById("hora").value,
                 responsable: document.getElementById("responsable").value,
+                turno: document.getElementById("turno").value,
+                categoria: categoriaGlobal,
                 producto: document.getElementById("producto").value,
                 cantidad: document.getElementById("cantidad").value,
                 motivo: document.getElementById("motivo").value
-            };
-            mermasData.push(nuevaMerma);
+            });
             localStorage.setItem("bk_mermas_data", JSON.stringify(mermasData));
             actualizarTabla();
             showToast("✅ Registro guardado");
@@ -187,28 +197,28 @@
             const tbody = document.querySelector("#mermasTable tbody");
             tbody.innerHTML = "";
             mermasData.forEach(item => {
-                tbody.innerHTML += `<tr><td>${item.fecha}<br>${item.hora}</td><td>${item.responsable.split(' ')[0]}</td><td>${item.producto}</td><td>${item.cantidad}</td><td>${item.motivo}</td><td><button class="btn-delete" onclick="eliminarRegistro(${item.id})">X</button></td></tr>`;
+                tbody.innerHTML += `<tr><td>${item.fecha}<br>${item.hora}</td><td>${item.responsable.split(' ')[0]}</td><td>${item.turno}</td><td>${item.categoria.substring(0,3)}</td><td>${item.producto}</td><td>${item.cantidad}</td><td>${item.motivo}</td><td><button class="btn-delete" onclick="eliminarRegistro(${item.id})">X</button></td></tr>`;
             });
         }
 
         function exportarCSV() {
-            const fInicio = document.getElementById("fechaInicio").value;
-            const fFin = document.getElementById("fechaFin").value;
-            let datosFiltrados = mermasData;
-            if (fInicio && fFin) {
-                datosFiltrados = mermasData.filter(item => item.fecha >= fInicio && item.fecha <= fFin);
-            }
-            let csvContent = "\uFEFFFecha;Hora;Responsable;Producto;Cantidad;Motivo\n";
-            datosFiltrados.forEach(i => { csvContent += `${i.fecha};${i.hora};${i.responsable};${i.producto};${i.cantidad};${i.motivo}\n`; });
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const start = document.getElementById("fInicio").value;
+            const end = document.getElementById("fFin").value;
+            let data = mermasData;
+            if(start && end) data = data.filter(i => i.fecha >= start && i.fecha <= end);
+            
+            let csv = "\uFEFFFecha;Hora;Responsable;Turno;Categoria;Producto;Cantidad;Motivo\n";
+            data.forEach(i => csv += `${i.fecha};${i.hora};${i.responsable};${i.turno};${i.categoria};${i.producto};${i.cantidad};${i.motivo}\n`);
+            
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement("a");
             link.href = URL.createObjectURL(blob);
-            link.download = "Mermas_BK.csv";
+            link.download = "Mermas.csv";
             link.click();
         }
 
         function eliminarRegistro(id) { mermasData = mermasData.filter(i => i.id !== id); localStorage.setItem("bk_mermas_data", JSON.stringify(mermasData)); actualizarTabla(); }
-        function borrarTodo() { if(confirm("¿Vaciar todo?")) { mermasData = []; localStorage.removeItem("bk_mermas_data"); actualizarTabla(); } }
+        function borrarTodo() { if(confirm("¿Seguro?")) { mermasData = []; localStorage.removeItem("bk_mermas_data"); actualizarTabla(); } }
         function showToast(msj) { const t = document.getElementById("toast"); t.textContent = msj; t.style.display = "block"; setTimeout(() => t.style.display = "none", 2000); }
     </script>
 </body>
