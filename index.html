@@ -50,6 +50,9 @@
                 <option value="Christopher López" data-permiso="CONCEDIDO">Christopher López (Gerente)</option>
                 <option value="Yennifer Franco" data-permiso="DENEGADO">Yennifer Franco (Subgerente)</option>
                 <option value="Matías Pizarro" data-permiso="CONCEDIDO">Matías Pizarro (Administrador)</option>
+                <option value="Paola Martínez" data-permiso="DENEGADO">Paola Martínez (Administrador)</option>
+                <option value="Ivannia Escobar" data-permiso="DENEGADO">Ivannia Escobar (Administrador)</option>
+                <option value="Ignacia González" data-permiso="DENEGADO">Ignacia González (Crew Máster)</option>
             </select>
 
             <label for="turno">Turno</label>
@@ -81,12 +84,12 @@
             <label for="motivo">Motivo</label>
             <select id="motivo" required>
                 <option value="" disabled selected>-- Selecciona el Motivo --</option>
-                <option value="Quemado/Crudo">Quemado/Crudo</option>
-                <option value="Vencido">Vencido</option>
-                <option value="Caída al piso">Caída al piso</option>
-                <option value="Error de preparación">Error de preparación</option>
-                <option value="Mal estado de origen">Mal estado de origen</option>
-                <option value="OPERACIÓN - O">OPERACIÓN - O</option>
+                <option value="**QUEMADO / CRUDO**">**QUEMADO / CRUDO**</option>
+                <option value="**VENCIDO / CADUCADO**">**VENCIDO / CADUCADO**</option>
+                <option value="**CAIDA AL PISO**">**CAIDA AL PISO**</option>
+                <option value="**ERROR PREPARACIÓN**">**ERROR PREPARACIÓN**</option>
+                <option value="**MAL ESTADO DE ORIGEN**">**MAL ESTADO DE ORIGEN**</option>
+                <option value="**OPERACION**">**OPERACION**</option>
             </select>
 
             <label for="comentarios">Justificación / Detalles</label>
@@ -109,7 +112,7 @@
     <div class="table-container">
         <div class="table-title">📋 Desglose de Mermas Registradas</div>
         <table id="mermasTable">
-            <thead><tr><th>Fecha</th><th>Hora</th><th>Resp.</th><th>Prod.</th><th>Cant.</th><th>Motivo</th><th>Acción</th></tr></thead>
+            <thead><tr><th>F/H</th><th>Resp.</th><th>Prod.</th><th>Cant.</th><th>Motivo</th><th>Acción</th></tr></thead>
             <tbody></tbody>
         </table>
     </div>
@@ -118,12 +121,12 @@
 
     <script>
         const productosPorCategoria = {
-            "Carnes": [{ nombre: "Whopper Patty", unidad: "Unidades" }, { nombre: "Mega Patty", unidad: "Unidades" }],
-            "Snacks": [{ nombre: "Nuggets", unidad: "Unidades" }, { nombre: "Chicken Fries", unidad: "Unidades" }],
-            "Postres": [{ nombre: "Helado", unidad: "Litros" }, { nombre: "Pie de Manzana", unidad: "Unidades" }],
-            "Bebidas": [{ nombre: "Lata Pepsi", unidad: "Unidades" }],
-            "Pan": [{ nombre: "Pan Whopper", unidad: "Unidades" }],
-            "Otros": [{ nombre: "Lechuga", unidad: "Kg" }]
+            "Carnes": [{ nombre: "Whopper Patty", unidad: "Unidades" }, { nombre: "Mega Patty", unidad: "Unidades" }, { nombre: "Rebel Patty", unidad: "Unidades" }, { nombre: "Hamburguesa XT", unidad: "Unidades" }, { nombre: "Chicken Patty", unidad: "Unidades" }, { nombre: "Chicken Patty Vegetal", unidad: "Unidades" }, { nombre: "Pollo Jr.", unidad: "Unidades" }],
+            "Snacks": [{ nombre: "Aros de cebolla", unidad: "Unidades" }, { nombre: "Empanadas", unidad: "Unidades" }, { nombre: "Cheese Pillows", unidad: "Unidades" }, { nombre: "Chicken Fries", unidad: "Unidades" }, { nombre: "Nuggets", unidad: "Unidades" }, { nombre: "Nuggets Vegetal", unidad: "Unidades" }],
+            "Postres": [{ nombre: "Pie de Manzana", unidad: "Unidades" }, { nombre: "Pie de chocolate", unidad: "Unidades" }, { nombre: "Dona Tricolor", unidad: "Unidades" }, { nombre: "Dona Fresa", unidad: "Unidades" }, { nombre: "Muffin Chocolate", unidad: "Unidades" }, { nombre: "Helado", unidad: "Litros" }, { nombre: "Media Luna", unidad: "Unidades" }],
+            "Bebidas": [{ nombre: "Lata Crush", unidad: "Unidades" }, { nombre: "Lata Kem", unidad: "Unidades" }, { nombre: "Lata Pepsi", unidad: "Unidades" }, { nombre: "Lata Pepsi Zero", unidad: "Unidades" }, { nombre: "Red Bull", unidad: "Unidades" }, { nombre: "Red Bull Free", unidad: "Unidades" }],
+            "Pan": [{ nombre: "Pan Whopper", unidad: "Unidades" }, { nombre: "Pan Hamburguesa", unidad: "Unidades" }, { nombre: "Pan Papa", unidad: "Unidades" }, { nombre: "Pan Queso", unidad: "Unidades" }, { nombre: "Pan Sésamo Negro", unidad: "Unidades" }, { nombre: "Pan Masa Madre", unidad: "Unidades" }, { nombre: "Pan Especial", unidad: "Unidades" }],
+            "Otros": [{ nombre: "Vaso Cerámica", unidad: "Unidades" }, { nombre: "Lechuga", unidad: "Kg" }, { nombre: "Tomate", unidad: "Kg" }, { nombre: "Cebolla", unidad: "Kg" }, { nombre: "Lechuga Grill", unidad: "Kg" }]
         };
 
         let categoriaGlobal = "";
@@ -184,7 +187,7 @@
             const tbody = document.querySelector("#mermasTable tbody");
             tbody.innerHTML = "";
             mermasData.forEach(item => {
-                tbody.innerHTML += `<tr><td>${item.fecha}</td><td>${item.hora}</td><td>${item.responsable.split(' ')[0]}</td><td>${item.producto}</td><td>${item.cantidad}</td><td>${item.motivo}</td><td><button class="btn-delete" onclick="eliminarRegistro(${item.id})">X</button></td></tr>`;
+                tbody.innerHTML += `<tr><td>${item.fecha}<br>${item.hora}</td><td>${item.responsable.split(' ')[0]}</td><td>${item.producto}</td><td>${item.cantidad}</td><td>${item.motivo}</td><td><button class="btn-delete" onclick="eliminarRegistro(${item.id})">X</button></td></tr>`;
             });
         }
 
