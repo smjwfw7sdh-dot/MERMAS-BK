@@ -40,9 +40,9 @@
 
         <form id="mermaForm">
             <label for="fecha">Fecha</label>
-            <input type="date" id="fecha" required>
+            <input type="date" id="fecha" required onchange="actualizarTurnoAuto()">
             <label for="hora">Hora</label>
-            <input type="time" id="hora" required>
+            <input type="time" id="hora" required onchange="actualizarTurnoAuto()">
 
             <label for="responsable">Responsable</label>
             <select id="responsable" required onchange="evaluarRol()">
@@ -57,9 +57,9 @@
 
             <label for="turno">Turno</label>
             <select id="turno" required>
-                <option value="AM">AM (Apertura)</option>
-                <option value="PM">PM (Tarde)</option>
-                <option value="Trasnoche">Trasnoche (Cierre)</option>
+                <option value="AM">AM</option>
+                <option value="PM">PM</option>
+                <option value="TRASNOCHE">TRASNOCHE</option>
             </select>
 
             <label>Categoría</label>
@@ -99,8 +99,8 @@
                 <button type="submit" class="btn-submit">💾 Registrar Fila</button>
                 <div id="adminControls" style="display:none; width: 100%;">
                     <label>Periodo (opcional para exportar):</label>
-                    <input type="date" id="fInicio" placeholder="Inicio">
-                    <input type="date" id="fFin" placeholder="Fin">
+                    <input type="date" id="fInicio">
+                    <input type="date" id="fFin">
                     <button type="button" class="btn-export" onclick="exportarCSV()">📥 Exportar a CSV (Excel)</button>
                     <button type="button" class="btn-clear-all" onclick="borrarTodo()">🗑️ Vaciar Todo</button>
                 </div>
@@ -112,16 +112,7 @@
         <div class="table-title">📋 Desglose de Mermas Registradas</div>
         <table id="mermasTable">
             <thead>
-                <tr>
-                    <th>F/H</th>
-                    <th>Responsable</th>
-                    <th>Turno</th>
-                    <th>Cat.</th>
-                    <th>Producto</th>
-                    <th>Cant.</th>
-                    <th>Motivo</th>
-                    <th>Acción</th>
-                </tr>
+                <tr><th>F/H</th><th>Resp.</th><th>Turno</th><th>Producto</th><th>Cant.</th><th>Motivo</th><th>Acción</th></tr>
             </thead>
             <tbody></tbody>
         </table>
@@ -142,10 +133,33 @@
         let categoriaGlobal = "";
         let mermasData = JSON.parse(localStorage.getItem("bk_mermas_data")) || [];
 
+        function determinarTurno(f, h) {
+            const date = new Date(f + 'T00:00:00');
+            const dia = date.getDay(); // 0=Dom, 4=Jue, 5=Vie, 6=Sab
+            const [hh, mm] = h.split(':').map(Number);
+            const minTotal = hh * 60 + mm;
+            
+            if (dia === 4 || dia === 5 || dia === 6) {
+                if (minTotal >= 480 && minTotal <= 1020) return "AM";
+                if (minTotal >= 1021 && minTotal <= 1350) return "PM";
+                return "TRASNOCHE";
+            } else {
+                if (minTotal >= 480 && minTotal <= 1020) return "AM";
+                return "PM";
+            }
+        }
+
+        function actualizarTurnoAuto() {
+            const f = document.getElementById("fecha").value;
+            const h = document.getElementById("hora").value;
+            if(f && h) document.getElementById("turno").value = determinarTurno(f, h);
+        }
+
         window.onload = function() {
             const now = new Date();
             document.getElementById("fecha").value = now.toISOString().split('T')[0];
             document.getElementById("hora").value = now.toTimeString().slice(0,5);
+            actualizarTurnoAuto();
             actualizarTabla();
         };
 
@@ -153,19 +167,19 @@
             categoriaGlobal = cat;
             document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
             elemento.classList.add('active');
-            const comboProducto = document.getElementById("producto");
-            comboProducto.innerHTML = '<option value="" disabled selected>-- Elige el Producto --</option>';
+            const combo = document.getElementById("producto");
+            combo.innerHTML = '<option value="" disabled selected>-- Elige el Producto --</option>';
             productosPorCategoria[cat].forEach(p => {
                 let opt = document.createElement("option");
                 opt.value = p.nombre; opt.textContent = p.nombre; opt.setAttribute('data-unit', p.unidad);
-                comboProducto.appendChild(opt);
+                combo.appendChild(opt);
             });
         }
 
         function actualizarUnidad() {
             const combo = document.getElementById("producto");
-            const opcion = combo.options[combo.selectedIndex];
-            document.getElementById("unitLabel").textContent = `Medida: ${opcion.getAttribute('data-unit')}`;
+            const op = combo.options[combo.selectedIndex];
+            document.getElementById("unitLabel").textContent = `Medida: ${op.getAttribute('data-unit')}`;
         }
 
         function evaluarRol() {
@@ -183,7 +197,6 @@
                 hora: document.getElementById("hora").value,
                 responsable: document.getElementById("responsable").value,
                 turno: document.getElementById("turno").value,
-                categoria: categoriaGlobal,
                 producto: document.getElementById("producto").value,
                 cantidad: document.getElementById("cantidad").value,
                 motivo: document.getElementById("motivo").value
@@ -196,8 +209,8 @@
         function actualizarTabla() {
             const tbody = document.querySelector("#mermasTable tbody");
             tbody.innerHTML = "";
-            mermasData.forEach(item => {
-                tbody.innerHTML += `<tr><td>${item.fecha}<br>${item.hora}</td><td>${item.responsable.split(' ')[0]}</td><td>${item.turno}</td><td>${item.categoria.substring(0,3)}</td><td>${item.producto}</td><td>${item.cantidad}</td><td>${item.motivo}</td><td><button class="btn-delete" onclick="eliminarRegistro(${item.id})">X</button></td></tr>`;
+            mermasData.forEach(i => {
+                tbody.innerHTML += `<tr><td>${i.fecha}<br>${i.hora}</td><td>${i.responsable.split(' ')[0]}</td><td>${i.turno}</td><td>${i.producto}</td><td>${i.cantidad}</td><td>${i.motivo}</td><td><button class="btn-delete" onclick="eliminarRegistro(${i.id})">X</button></td></tr>`;
             });
         }
 
@@ -206,10 +219,8 @@
             const end = document.getElementById("fFin").value;
             let data = mermasData;
             if(start && end) data = data.filter(i => i.fecha >= start && i.fecha <= end);
-            
-            let csv = "\uFEFFFecha;Hora;Responsable;Turno;Categoria;Producto;Cantidad;Motivo\n";
-            data.forEach(i => csv += `${i.fecha};${i.hora};${i.responsable};${i.turno};${i.categoria};${i.producto};${i.cantidad};${i.motivo}\n`);
-            
+            let csv = "\uFEFFFecha;Hora;Responsable;Turno;Producto;Cantidad;Motivo\n";
+            data.forEach(i => csv += `${i.fecha};${i.hora};${i.responsable};${i.turno};${i.producto};${i.cantidad};${i.motivo}\n`);
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement("a");
             link.href = URL.createObjectURL(blob);
