@@ -12,7 +12,7 @@
         h2 { text-align: center; color: var(--bk-red); font-size: 24px; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; border-bottom: 3px dashed var(--bk-orange); padding-bottom: 10px; }
         .alert-admin { background-color: #FFF0F0; border: 2px solid var(--bk-red); color: var(--bk-red); padding: 12px; border-radius: 8px; font-weight: bold; text-align: center; margin-bottom: 15px; display: none; font-size: 13px; }
         label { display: block; font-weight: bold; margin-bottom: 8px; color: var(--bk-brown); font-size: 14px; text-transform: uppercase; }
-        select, input[type="number"], input[type="date"], input[type="time"], textarea { width: 100%; padding: 12px; border: 2px solid var(--bk-brown); border-radius: 8px; background-color: var(--bk-cream); color: var(--bk-brown); font-size: 16px; font-weight: bold; margin-bottom: 15px; outline: none; }
+        select, input[type="number"], input[type="date"], input[type="time"], input[type="text"], textarea { width: 100%; padding: 12px; border: 2px solid var(--bk-brown); border-radius: 8px; background-color: var(--bk-cream); color: var(--bk-brown); font-size: 16px; font-weight: bold; margin-bottom: 15px; outline: none; }
         .chip-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 15px; }
         .chip { background-color: var(--bk-cream); border: 2px solid var(--bk-brown); padding: 10px 5px; border-radius: 8px; text-align: center; font-weight: bold; cursor: pointer; transition: all 0.2s; font-size: 11px; text-transform: uppercase; }
         .chip.active { background-color: var(--bk-orange); color: white; transform: translateY(2px); box-shadow: inset 0 3px 5px rgba(0,0,0,0.2); }
@@ -23,37 +23,74 @@
         .btn-submit { background-color: var(--bk-red); color: white; }
         .btn-export { background-color: var(--bk-gold); color: var(--bk-brown); }
         .btn-clear-all { background-color: #7A7A7A; color: white; }
+        .btn-manual { background-color: var(--bk-orange); color: white; margin-bottom: 15px; }
         .table-container { width: 100%; max-width: 600px; background: white; border: 3px solid var(--bk-brown); border-radius: 16px; padding: 15px; box-shadow: 0 8px 0px var(--bk-brown); overflow-x: auto; }
         .table-title { font-size: 18px; color: var(--bk-brown); margin-bottom: 12px; text-transform: uppercase; border-bottom: 2px solid var(--bk-orange); padding-bottom: 5px; }
+        .record-count { font-size: 14px; color: var(--bk-orange); font-weight: bold; margin-bottom: 10px; }
         table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; }
         th, td { padding: 10px; border-bottom: 1px solid #DDD; white-space: nowrap; }
         th { background-color: var(--bk-cream); color: var(--bk-brown); text-transform: uppercase; }
         .btn-delete { background-color: var(--bk-red); color: white; border: 1px solid var(--bk-brown); padding: 4px 8px; font-size: 11px; border-radius: 4px; box-shadow: none; width: auto; }
         .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background-color: var(--bk-brown); color: white; padding: 12px 25px; border-radius: 25px; font-weight: bold; display: none; z-index: 1000; }
+        .error-msg { color: var(--bk-red); font-size: 12px; font-weight: bold; margin-top: -12px; margin-bottom: 10px; display: none; }
+        .summary-container { width: 100%; max-width: 600px; background: white; border: 3px solid var(--bk-brown); border-radius: 16px; padding: 15px; box-shadow: 0 8px 0px var(--bk-brown); }
+        .summary-title { font-size: 18px; color: var(--bk-brown); margin-bottom: 12px; text-transform: uppercase; border-bottom: 2px solid var(--bk-orange); padding-bottom: 5px; }
+        .summary-total { font-size: 16px; font-weight: bold; color: var(--bk-red); margin-bottom: 10px; }
+        .summary-cats { display: flex; flex-wrap: wrap; gap: 8px; }
+        .summary-chip { background-color: var(--bk-cream); border: 2px solid var(--bk-brown); padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: bold; }
+        .summary-chip span { color: var(--bk-orange); }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(80,35,20,0.7); z-index: 2000; justify-content: center; align-items: center; padding: 15px; }
+        .modal-overlay.show { display: flex; }
+        .modal-box { background: var(--bg-card); border: 3px solid var(--bk-brown); border-radius: 16px; padding: 20px; max-width: 500px; width: 100%; max-height: 85vh; overflow-y: auto; box-shadow: 0 8px 0 var(--bk-brown); position: relative; }
+        .modal-box h3 { color: var(--bk-red); text-align: center; margin-bottom: 15px; text-transform: uppercase; border-bottom: 3px dashed var(--bk-orange); padding-bottom: 8px; }
+        .modal-box h4 { color: var(--bk-brown); margin: 15px 0 8px; font-size: 14px; text-transform: uppercase; }
+        .modal-box p, .modal-box li { font-size: 13px; font-family: Arial, sans-serif; font-weight: normal; line-height: 1.5; margin-bottom: 6px; }
+        .modal-box ol { padding-left: 20px; margin-bottom: 10px; }
+        .modal-box ul { padding-left: 18px; margin-bottom: 10px; list-style: none; }
+        .modal-box ul li::before { content: "• "; color: var(--bk-orange); font-weight: bold; }
+        .modal-close { background-color: var(--bk-red); color: white; margin-top: 15px; }
+        .comentario-cell { max-width: 120px; white-space: normal; word-break: break-word; font-size: 11px; }
+        .checkbox-admin { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; background: var(--bk-cream); border: 2px solid var(--bk-brown); border-radius: 8px; padding: 12px; cursor: pointer; }
+        .checkbox-admin input { width: 20px; height: 20px; accent-color: var(--bk-orange); cursor: pointer; }
+        .checkbox-admin span { font-size: 13px; font-weight: bold; text-transform: uppercase; }
+        .info-persist { font-size: 11px; color: var(--bk-orange); text-align: center; margin-bottom: 12px; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <div class="container">
         <h2>🍔 Registro Local de Mermas 🍟</h2>
-        <div id="alertAdmin" class="alert-admin">⚠️ ACCESO LIMITADO.</div>
+        <div class="info-persist">💾 Datos guardados automáticamente en este equipo</div>
+        <div id="alertAdmin" class="alert-admin">⚠️ ACCESO LIMITADO. Solo Gerentes/Administradores autorizados pueden exportar y vaciar historial.</div>
+
+        <button type="button" class="btn-manual" onclick="abrirManual()">❓ Cómo usar</button>
 
         <form id="mermaForm">
+            <label for="tienda">Tienda</label>
+            <select id="tienda" required onchange="guardarTienda()">
+                <option value="" disabled selected>-- Selecciona la Tienda --</option>
+                <option value="Costanera Center">Costanera Center</option>
+                <option value="Curicó">Curicó</option>
+                <option value="Guardia Vieja">Guardia Vieja</option>
+                <option value="Hernando de Aguirre II">Hernando de Aguirre II</option>
+                <option value="Mall Plaza Maule Talca">Mall Plaza Maule Talca</option>
+                <option value="Mall Plaza Norte">Mall Plaza Norte</option>
+                <option value="Manuel Montt">Manuel Montt</option>
+                <option value="Pedro Fontova">Pedro Fontova</option>
+                <option value="Plaza Norte 2 II">Plaza Norte 2 II</option>
+                <option value="Suecia">Suecia</option>
+                <option value="Talca Las Rastras">Talca Las Rastras</option>
+            </select>
+            <div id="errorTienda" class="error-msg">⚠️ Selecciona una tienda</div>
+
             <label for="fecha">Fecha</label>
             <input type="date" id="fecha" required onchange="actualizarTurnoAuto()">
             <label for="hora">Hora</label>
             <input type="time" id="hora" required onchange="actualizarTurnoAuto()">
 
             <label for="responsable">Responsable</label>
-            <select id="responsable" required onchange="evaluarRol()">
-                <option value="" disabled selected>-- Selecciona tu Nombre --</option>
-                <option value="Christopher López" data-permiso="CONCEDIDO">Christopher López (Gerente)</option>
-                <option value="Yennifer Franco" data-permiso="DENEGADO">Yennifer Franco (Subgerente)</option>
-                <option value="Matías Pizarro" data-permiso="CONCEDIDO">Matías Pizarro (Administrador)</option>
-                <option value="Paola Martínez" data-permiso="DENEGADO">Paola Martínez (Administrador)</option>
-                <option value="Ivannia Escobar" data-permiso="DENEGADO">Ivannia Escobar (Administrador)</option>
-                <option value="Ignacia González" data-permiso="DENEGADO">Ignacia González (Crew Máster)</option>
-            </select>
+            <input type="text" id="responsable" placeholder="Escribe tu nombre completo" required>
+            <div id="errorResponsable" class="error-msg">⚠️ Ingresa el nombre del responsable</div>
 
             <label for="turno">Turno</label>
             <select id="turno" required>
@@ -61,6 +98,11 @@
                 <option value="PM">PM</option>
                 <option value="TRASNOCHE">TRASNOCHE</option>
             </select>
+
+            <label class="checkbox-admin" for="esAdmin">
+                <input type="checkbox" id="esAdmin" onchange="evaluarRol()">
+                <span>Soy Gerente / Administrador autorizado</span>
+            </label>
 
             <label>Categoría</label>
             <div class="chip-container">
@@ -71,15 +113,18 @@
                 <div class="chip" onclick="seleccionarCategoria('Pan', this)">🍞 Pan</div>
                 <div class="chip" onclick="seleccionarCategoria('Otros', this)">📦 Otros</div>
             </div>
+            <div id="errorCategoria" class="error-msg">⚠️ Selecciona una categoría</div>
 
             <label for="producto">Producto</label>
             <select id="producto" required onchange="actualizarUnidad()">
                 <option value="" disabled selected>-- Elige una categoría primero --</option>
             </select>
+            <div id="errorProducto" class="error-msg">⚠️ Selecciona un producto</div>
 
             <label for="cantidad">Cantidad</label>
             <input type="number" id="cantidad" min="0.001" step="0.001" placeholder="Ingresa cantidad" required>
             <span id="unitLabel" class="unit-label"></span>
+            <div id="errorCantidad" class="error-msg">⚠️ La cantidad debe ser mayor a 0</div>
 
             <label for="motivo">Motivo</label>
             <select id="motivo" required>
@@ -91,6 +136,7 @@
                 <option value="MAL ESTADO DE ORIGEN">MAL ESTADO DE ORIGEN</option>
                 <option value="OPERACION">OPERACION</option>
             </select>
+            <div id="errorMotivo" class="error-msg">⚠️ Selecciona un motivo</div>
 
             <label for="comentarios">Justificación / Detalles</label>
             <textarea id="comentarios" rows="2" placeholder="Notas opcionales..."></textarea>
@@ -108,15 +154,84 @@
         </form>
     </div>
 
+    <div class="summary-container" id="resumenDia">
+        <div class="summary-title">📊 Resumen del día</div>
+        <div class="summary-total" id="summaryTotal">Total de mermas hoy: 0</div>
+        <div class="summary-cats" id="summaryCats"></div>
+    </div>
+
     <div class="table-container">
         <div class="table-title">📋 Desglose de Mermas Registradas</div>
+        <div class="record-count" id="recordCount">Total registros: 0</div>
         <table id="mermasTable">
-            <thead><tr><th>Fecha/Hora</th><th>Resp.</th><th>Turno</th><th>Prod.</th><th>Cant.</th><th>Motivo</th><th>X</th></tr></thead>
+            <thead>
+                <tr>
+                    <th>Tienda</th>
+                    <th>Fecha/Hora</th>
+                    <th>Resp.</th>
+                    <th>Turno</th>
+                    <th>Cat.</th>
+                    <th>Prod.</th>
+                    <th>Cant.</th>
+                    <th>Motivo</th>
+                    <th>Coment.</th>
+                    <th>X</th>
+                </tr>
+            </thead>
             <tbody></tbody>
         </table>
     </div>
 
     <div id="toast" class="toast"></div>
+
+    <div id="manualModal" class="modal-overlay" onclick="cerrarManual(event)">
+        <div class="modal-box" onclick="event.stopPropagation()">
+            <h3>📖 MANUAL RÁPIDO – Control de Mermas BK</h3>
+
+            <h4>Cómo registrar una merma:</h4>
+            <ol>
+                <li>Abre la página</li>
+                <li>Selecciona la <strong>Tienda</strong> (se guarda sola)</li>
+                <li>Revisa Fecha y Hora (ya vienen cargadas)</li>
+                <li>Escribe tu nombre en <strong>Responsable</strong></li>
+                <li>Confirma el Turno (se llena solo)</li>
+                <li>Si eres Gerente/Admin, marca el checkbox de autorización</li>
+                <li>Toca la Categoría</li>
+                <li>Elige el Producto</li>
+                <li>Escribe la Cantidad</li>
+                <li>Selecciona el Motivo</li>
+                <li>(Opcional) Escribe un detalle en Justificación</li>
+                <li>Presiona Registrar Fila</li>
+            </ol>
+
+            <h4>¿Qué es cada campo?</h4>
+            <ul>
+                <li><strong>Tienda</strong> → Local donde ocurrió la merma (se recuerda automáticamente)</li>
+                <li><strong>Fecha / Hora</strong> → Cuándo ocurrió la merma</li>
+                <li><strong>Responsable</strong> → Quién está registrando (escribe tu nombre)</li>
+                <li><strong>Turno</strong> → AM / PM / Trasnoche</li>
+                <li><strong>Categoría</strong> → Tipo de producto</li>
+                <li><strong>Producto</strong> → Qué se botó</li>
+                <li><strong>Cantidad</strong> → Cuánto se botó</li>
+                <li><strong>Motivo</strong> → Por qué se botó</li>
+                <li><strong>Justificación</strong> → Detalle extra (opcional)</li>
+            </ul>
+
+            <h4>Motivos – Guía rápida:</h4>
+            <ul>
+                <li><strong>1. QUEMADO / CRUDO</strong><br>Producto cocinado de más o de menos.<br>Ej: carne quemada, pollo crudo, papas muy oscuras.</li>
+                <li><strong>2. VENCIDO / CADUCADO</strong><br>Producto que venció su fecha.<br>Ej: panes, carnes, lechuga, cebolla o tomate que se pasó de fecha.</li>
+                <li><strong>3. CAIDA AL PISO</strong><br>Se cayó al piso o a superficie sucia.<br>Ej: hamburguesa que se cae al armar, contenedor que se tira.</li>
+                <li><strong>4. ERROR PREPARACIÓN</strong><br>Error al preparar o armar.<br>Ej: sal de más, pedido mal armado, producto equivocado.</li>
+                <li><strong>5. MAL ESTADO DE ORIGEN</strong><br>Llegó malo del proveedor o almacén.<br>Ej: carne con mal olor, verduras podridas al recibir.</li>
+                <li><strong>6. OPERACION</strong><br>Causa operativa del local.<br>Ej: sobras de fin de turno, cambio de menú, falla de equipo.</li>
+            </ul>
+
+            <p style="margin-top:15px; font-size:12px; color:var(--bk-red); font-weight:bold;">Solo Gerentes / Administradores autorizados pueden exportar a Excel y vaciar el historial (marcar el checkbox).<br><br>Los datos se guardan automáticamente en este computador. Al cerrar y volver a abrir la página, la tienda y todos los registros se mantienen.</p>
+
+            <button type="button" class="modal-close" onclick="cerrarManual()">Cerrar</button>
+        </div>
+    </div>
 
     <script>
         const productosPorCategoria = {
@@ -125,15 +240,16 @@
             "Postres": [{ nombre: "Pie de Manzana", unidad: "Unidades" }, { nombre: "Pie de chocolate", unidad: "Unidades" }, { nombre: "Dona Tricolor", unidad: "Unidades" }, { nombre: "Dona Fresa", unidad: "Unidades" }, { nombre: "Muffin Chocolate", unidad: "Unidades" }, { nombre: "Helado", unidad: "Litros" }, { nombre: "Media Luna", unidad: "Unidades" }],
             "Bebidas": [{ nombre: "Lata Crush", unidad: "Unidades" }, { nombre: "Lata Kem", unidad: "Unidades" }, { nombre: "Lata Pepsi", unidad: "Unidades" }, { nombre: "Lata Pepsi Zero", unidad: "Unidades" }, { nombre: "Red Bull", unidad: "Unidades" }, { nombre: "Red Bull Free", unidad: "Unidades" }],
             "Pan": [{ nombre: "Pan Whopper", unidad: "Unidades" }, { nombre: "Pan Hamburguesa", unidad: "Unidades" }, { nombre: "Pan Papa", unidad: "Unidades" }, { nombre: "Pan Queso", unidad: "Unidades" }, { nombre: "Pan Sésamo Negro", unidad: "Unidades" }, { nombre: "Pan Masa Madre", unidad: "Unidades" }, { nombre: "Pan Especial", unidad: "Unidades" }],
-            "Otros": [{ nombre: "Vaso Cerámica", unidad: "Unidades" }, { nombre: "Lechuga", unidad: "Kg" }, { nombre: "Tomate", unidad: "Kg" }, { nombre: "Cebolla", unidad: "Kg" }, { nombre: "Lechuga Grill", unidad: "Kg" }]
+            "Otros": [{ nombre: "Vaso Cerámica", unidad: "Unidades" }, { nombre: "Lechuga", unidad: "Kg" }, { nombre: "Cebolla", unidad: "Kg" }, { nombre: "Tomate", unidad: "Kg" }, { nombre: "Lechuga Grill", unidad: "Kg" }]
         };
 
         let categoriaGlobal = "";
+        let unidadGlobal = "";
         let mermasData = JSON.parse(localStorage.getItem("bk_mermas_data")) || [];
 
         function determinarTurno(f, h) {
             const date = new Date(f + 'T00:00:00');
-            const dia = date.getDay(); 
+            const dia = date.getDay();
             const [hh, mm] = h.split(':').map(Number);
             const minTotal = hh * 60 + mm;
             if (dia === 4 || dia === 5 || dia === 6) {
@@ -149,90 +265,262 @@
         function actualizarTurnoAuto() {
             const f = document.getElementById("fecha").value;
             const h = document.getElementById("hora").value;
-            if(f && h) document.getElementById("turno").value = determinarTurno(f, h);
+            if (f && h) document.getElementById("turno").value = determinarTurno(f, h);
+        }
+
+        function guardarTienda() {
+            const tienda = document.getElementById("tienda").value;
+            if (tienda) {
+                localStorage.setItem("bk_tienda_seleccionada", tienda);
+            }
+        }
+
+        function restaurarTienda() {
+            const tiendaGuardada = localStorage.getItem("bk_tienda_seleccionada");
+            if (tiendaGuardada) {
+                const select = document.getElementById("tienda");
+                for (let i = 0; i < select.options.length; i++) {
+                    if (select.options[i].value === tiendaGuardada) {
+                        select.selectedIndex = i;
+                        break;
+                    }
+                }
+            }
         }
 
         window.onload = function() {
             const now = new Date();
             document.getElementById("fecha").value = now.toISOString().split('T')[0];
-            document.getElementById("hora").value = now.toTimeString().slice(0,5);
+            document.getElementById("hora").value = now.toTimeString().slice(0, 5);
             actualizarTurnoAuto();
+            restaurarTienda();
             actualizarTabla();
+            actualizarResumen();
+            evaluarRol();
         };
 
         function seleccionarCategoria(cat, elemento) {
             categoriaGlobal = cat;
             document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
             elemento.classList.add('active');
+            document.getElementById("errorCategoria").style.display = "none";
             const combo = document.getElementById("producto");
             combo.innerHTML = '<option value="" disabled selected>-- Elige el Producto --</option>';
             productosPorCategoria[cat].forEach(p => {
                 let opt = document.createElement("option");
-                opt.value = p.nombre; opt.textContent = p.nombre; opt.setAttribute('data-unit', p.unidad);
+                opt.value = p.nombre;
+                opt.textContent = p.nombre;
+                opt.setAttribute('data-unit', p.unidad);
                 combo.appendChild(opt);
             });
+            document.getElementById("unitLabel").textContent = "";
+            unidadGlobal = "";
         }
 
         function actualizarUnidad() {
             const combo = document.getElementById("producto");
             const op = combo.options[combo.selectedIndex];
-            document.getElementById("unitLabel").textContent = `Medida: ${op.getAttribute('data-unit')}`;
+            unidadGlobal = op.getAttribute('data-unit') || "";
+            document.getElementById("unitLabel").textContent = unidadGlobal ? `Medida: ${unidadGlobal}` : "";
+            document.getElementById("errorProducto").style.display = "none";
         }
 
         function evaluarRol() {
-            const combo = document.getElementById("responsable");
-            const esAdmin = combo.options[combo.selectedIndex].getAttribute('data-permiso') === "CONCEDIDO";
+            const esAdmin = document.getElementById("esAdmin").checked;
             document.getElementById("adminControls").style.display = esAdmin ? "block" : "none";
             document.getElementById("alertAdmin").style.display = esAdmin ? "none" : "block";
         }
 
+        function limpiarErrores() {
+            document.getElementById("errorTienda").style.display = "none";
+            document.getElementById("errorResponsable").style.display = "none";
+            document.getElementById("errorCategoria").style.display = "none";
+            document.getElementById("errorProducto").style.display = "none";
+            document.getElementById("errorCantidad").style.display = "none";
+            document.getElementById("errorMotivo").style.display = "none";
+        }
+
         document.getElementById("mermaForm").addEventListener("submit", function(e) {
             e.preventDefault();
+            limpiarErrores();
+
+            let valido = true;
+            const tienda = document.getElementById("tienda").value;
+            const responsable = document.getElementById("responsable").value.trim();
+            const producto = document.getElementById("producto").value;
+            const cantidad = parseFloat(document.getElementById("cantidad").value);
+            const motivo = document.getElementById("motivo").value;
+
+            if (!tienda) {
+                document.getElementById("errorTienda").style.display = "block";
+                valido = false;
+            }
+            if (!responsable) {
+                document.getElementById("errorResponsable").style.display = "block";
+                valido = false;
+            }
+            if (!categoriaGlobal) {
+                document.getElementById("errorCategoria").style.display = "block";
+                valido = false;
+            }
+            if (!producto) {
+                document.getElementById("errorProducto").style.display = "block";
+                valido = false;
+            }
+            if (!cantidad || cantidad <= 0 || isNaN(cantidad)) {
+                document.getElementById("errorCantidad").style.display = "block";
+                valido = false;
+            }
+            if (!motivo) {
+                document.getElementById("errorMotivo").style.display = "block";
+                valido = false;
+            }
+
+            if (!valido) {
+                showToast("⚠️ Completa los campos obligatorios");
+                return;
+            }
+
             mermasData.push({
                 id: Date.now(),
+                tienda: tienda,
                 fecha: document.getElementById("fecha").value,
                 hora: document.getElementById("hora").value,
-                responsable: document.getElementById("responsable").value,
+                responsable: responsable,
                 turno: document.getElementById("turno").value,
-                producto: document.getElementById("producto").value,
+                categoria: categoriaGlobal,
+                producto: producto,
                 cantidad: document.getElementById("cantidad").value,
-                motivo: document.getElementById("motivo").value
+                unidad: unidadGlobal,
+                motivo: motivo,
+                comentarios: document.getElementById("comentarios").value.trim()
             });
             localStorage.setItem("bk_mermas_data", JSON.stringify(mermasData));
+            guardarTienda();
             actualizarTabla();
+            actualizarResumen();
+
+            // Limpiar solo cantidad, producto, motivo y comentarios
+            document.getElementById("cantidad").value = "";
+            document.getElementById("producto").innerHTML = '<option value="" disabled selected>-- Elige el Producto --</option>';
+            productosPorCategoria[categoriaGlobal].forEach(p => {
+                let opt = document.createElement("option");
+                opt.value = p.nombre;
+                opt.textContent = p.nombre;
+                opt.setAttribute('data-unit', p.unidad);
+                document.getElementById("producto").appendChild(opt);
+            });
+            document.getElementById("motivo").selectedIndex = 0;
+            document.getElementById("comentarios").value = "";
+            document.getElementById("unitLabel").textContent = "";
+            unidadGlobal = "";
+
             showToast("✅ Registro guardado");
         });
 
         function actualizarTabla() {
             const tbody = document.querySelector("#mermasTable tbody");
             tbody.innerHTML = "";
-            mermasData.forEach(i => {
-                tbody.innerHTML += `<tr><td>${i.fecha} ${i.hora}</td><td>${i.responsable.split(' ')[0]}</td><td>${i.turno}</td><td>${i.producto}</td><td>${i.cantidad}</td><td><strong>${i.motivo}</strong></td><td><button class="btn-delete" onclick="eliminarRegistro(${i.id})">X</button></td></tr>`;
+            const sorted = [...mermasData].sort((a, b) => b.id - a.id);
+            document.getElementById("recordCount").textContent = `Total registros: ${sorted.length}`;
+
+            sorted.forEach(i => {
+                const coment = i.comentarios ? i.comentarios : "—";
+                const cat = i.categoria || "—";
+                const cant = i.unidad ? `${i.cantidad} ${i.unidad}` : i.cantidad;
+                const tiendaCorta = i.tienda ? (i.tienda.length > 12 ? i.tienda.substring(0, 12) + "…" : i.tienda) : "—";
+                tbody.innerHTML += `<tr>
+                    <td title="${i.tienda || ''}">${tiendaCorta}</td>
+                    <td>${i.fecha} ${i.hora}</td>
+                    <td>${(i.responsable || "").split(' ')[0]}</td>
+                    <td>${i.turno}</td>
+                    <td>${cat}</td>
+                    <td>${i.producto}</td>
+                    <td>${cant}</td>
+                    <td><strong>${i.motivo}</strong></td>
+                    <td class="comentario-cell">${coment}</td>
+                    <td><button class="btn-delete" onclick="eliminarRegistro(${i.id})">X</button></td>
+                </tr>`;
             });
+        }
+
+        function actualizarResumen() {
+            const hoy = new Date().toISOString().split('T')[0];
+            const delDia = mermasData.filter(i => i.fecha === hoy);
+            document.getElementById("summaryTotal").textContent = `Total de mermas hoy: ${delDia.length}`;
+
+            const contadores = {};
+            delDia.forEach(i => {
+                const cat = i.categoria || "Sin categoría";
+                contadores[cat] = (contadores[cat] || 0) + 1;
+            });
+
+            const catsDiv = document.getElementById("summaryCats");
+            catsDiv.innerHTML = "";
+            if (Object.keys(contadores).length === 0) {
+                catsDiv.innerHTML = '<div class="summary-chip">Sin registros hoy</div>';
+            } else {
+                Object.keys(contadores).sort().forEach(cat => {
+                    catsDiv.innerHTML += `<div class="summary-chip">${cat}: <span>${contadores[cat]}</span></div>`;
+                });
+            }
         }
 
         function exportarCSV() {
             const start = document.getElementById("fInicio").value;
             const end = document.getElementById("fFin").value;
             let data = mermasData;
-            if(start && end) data = data.filter(i => i.fecha >= start && i.fecha <= end);
-            
-            // CSV con punto y coma para separar columnas en Excel
-            let csv = "Fecha;Hora;Responsable;Turno;Producto;Cantidad;Motivo\n";
+            if (start && end) data = data.filter(i => i.fecha >= start && i.fecha <= end);
+
+            let csv = "Tienda;Fecha;Hora;Responsable;Turno;Categoría;Producto;Cantidad;Unidad;Motivo;Comentarios\n";
             data.forEach(i => {
-                csv += `${i.fecha};${i.hora};${i.responsable};${i.turno};${i.producto};${i.cantidad};${i.motivo}\n`;
+                const com = (i.comentarios || "").replace(/;/g, ",").replace(/\n/g, " ");
+                csv += `${i.tienda || ""};${i.fecha};${i.hora};${i.responsable};${i.turno};${i.categoria || ""};${i.producto};${i.cantidad};${i.unidad || ""};${i.motivo};${com}\n`;
             });
-            
+
+            const hoy = new Date().toISOString().split('T')[0];
             const blob = new Blob(["\uFEFF", csv], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement("a");
             link.href = URL.createObjectURL(blob);
-            link.download = "Mermas_BK.csv";
+            link.download = `Mermas_BK_${hoy}.csv`;
             link.click();
         }
 
-        function eliminarRegistro(id) { mermasData = mermasData.filter(i => i.id !== id); localStorage.setItem("bk_mermas_data", JSON.stringify(mermasData)); actualizarTabla(); }
-        function borrarTodo() { if(confirm("¿Seguro que deseas vaciar todo el historial?")) { mermasData = []; localStorage.removeItem("bk_mermas_data"); actualizarTabla(); } }
-        function showToast(msj) { const t = document.getElementById("toast"); t.textContent = msj; t.style.display = "block"; setTimeout(() => t.style.display = "none", 2000); }
+        function eliminarRegistro(id) {
+            if (!confirm("¿Seguro que deseas eliminar este registro?")) return;
+            mermasData = mermasData.filter(i => i.id !== id);
+            localStorage.setItem("bk_mermas_data", JSON.stringify(mermasData));
+            actualizarTabla();
+            actualizarResumen();
+            showToast("🗑️ Registro eliminado");
+        }
+
+        function borrarTodo() {
+            if (confirm("¿Seguro que deseas vaciar todo el historial?")) {
+                mermasData = [];
+                localStorage.removeItem("bk_mermas_data");
+                actualizarTabla();
+                actualizarResumen();
+                showToast("🗑️ Historial vaciado");
+            }
+        }
+
+        function showToast(msj) {
+            const t = document.getElementById("toast");
+            t.textContent = msj;
+            t.style.display = "block";
+            setTimeout(() => t.style.display = "none", 2000);
+        }
+
+        function abrirManual() {
+            document.getElementById("manualModal").classList.add("show");
+        }
+
+        function cerrarManual(e) {
+            if (!e || e.target === document.getElementById("manualModal") || e.type === "click") {
+                document.getElementById("manualModal").classList.remove("show");
+            }
+        }
     </script>
 </body>
 </html>
