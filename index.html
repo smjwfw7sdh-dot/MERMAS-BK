@@ -33,12 +33,13 @@
         .btn-delete { background-color: var(--bk-red); color: white; border: 1px solid var(--bk-brown); padding: 4px 8px; font-size: 11px; border-radius: 4px; box-shadow: none; width: auto; }
         .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background-color: var(--bk-brown); color: white; padding: 12px 25px; border-radius: 25px; font-weight: bold; display: none; z-index: 1000; }
         .error-msg { color: var(--bk-red); font-size: 12px; font-weight: bold; margin-top: -12px; margin-bottom: 10px; display: none; }
-        .summary-container { width: 100%; max-width: 600px; background: white; border: 3px solid var(--bk-brown); border-radius: 16px; padding: 15px; box-shadow: 0 8px 0px var(--bk-brown); }
+        .summary-container { width: 100%; max-width: 600px; background: white; border: 3px solid var(--bk-brown); border-radius: 16px; padding: 20px; box-shadow: 0 8px 0px var(--bk-brown); text-align: center; }
         .summary-title { font-size: 18px; color: var(--bk-brown); margin-bottom: 12px; text-transform: uppercase; border-bottom: 2px solid var(--bk-orange); padding-bottom: 5px; }
-        .summary-total { font-size: 16px; font-weight: bold; color: var(--bk-red); margin-bottom: 10px; }
-        .summary-cats { display: flex; flex-wrap: wrap; gap: 8px; }
-        .summary-chip { background-color: var(--bk-cream); border: 2px solid var(--bk-brown); padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: bold; }
-        .summary-chip span { color: var(--bk-orange); }
+        .summary-total { font-size: 32px; font-weight: bold; margin-bottom: 8px; transition: color 0.3s; }
+        .summary-total.rojo { color: #DA291C; }
+        .summary-total.verde { color: #2E7D32; }
+        .summary-subtitle { font-size: 13px; color: var(--bk-brown); margin-bottom: 5px; }
+        .summary-cats { display: none; } /* Ocultamos el desglose de cantidades */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(80,35,20,0.7); z-index: 2000; justify-content: center; align-items: center; padding: 15px; }
         .modal-overlay.show { display: flex; }
         .modal-box { background: var(--bg-card); border: 3px solid var(--bk-brown); border-radius: 16px; padding: 20px; max-width: 500px; width: 100%; max-height: 85vh; overflow-y: auto; box-shadow: 0 8px 0 var(--bk-brown); position: relative; }
@@ -155,9 +156,9 @@
     </div>
 
     <div class="summary-container" id="resumenDia">
-        <div class="summary-title">📊 Resumen del día</div>
-        <div class="summary-total" id="summaryTotal">Total de mermas hoy: 0</div>
-        <div class="summary-cats" id="summaryCats"></div>
+        <div class="summary-title">💰 Monto Total de Pérdida</div>
+        <div class="summary-subtitle">Dinero botado hoy</div>
+        <div class="summary-total verde" id="summaryTotal">$0</div>
     </div>
 
     <div class="table-container">
@@ -173,6 +174,7 @@
                     <th>Cat.</th>
                     <th>Prod.</th>
                     <th>Cant.</th>
+                    <th>Monto</th>
                     <th>Motivo</th>
                     <th>Coment.</th>
                     <th>X</th>
@@ -235,12 +237,48 @@
 
     <script>
         const productosPorCategoria = {
-            "Carnes": [{ nombre: "Whopper Patty", unidad: "Unidades" }, { nombre: "Mega Patty", unidad: "Unidades" }, { nombre: "Rebel Patty", unidad: "Unidades" }, { nombre: "Hamburguesa XT", unidad: "Unidades" }, { nombre: "Chicken Patty", unidad: "Unidades" }, { nombre: "Chicken Patty Vegetal", unidad: "Unidades" }, { nombre: "Pollo Jr.", unidad: "Unidades" }],
-            "Snacks": [{ nombre: "Aros de cebolla", unidad: "Unidades" }, { nombre: "Empanadas", unidad: "Unidades" }, { nombre: "Cheese Pillows", unidad: "Unidades" }, { nombre: "Chicken Fries", unidad: "Unidades" }, { nombre: "Nuggets", unidad: "Unidades" }, { nombre: "Nuggets Vegetal", unidad: "Unidades" }],
-            "Postres": [{ nombre: "Pie de Manzana", unidad: "Unidades" }, { nombre: "Pie de chocolate", unidad: "Unidades" }, { nombre: "Dona Tricolor", unidad: "Unidades" }, { nombre: "Dona Fresa", unidad: "Unidades" }, { nombre: "Muffin Chocolate", unidad: "Unidades" }, { nombre: "Helado", unidad: "Litros" }, { nombre: "Media Luna", unidad: "Unidades" }],
-            "Bebidas": [{ nombre: "Lata Crush", unidad: "Unidades" }, { nombre: "Lata Kem", unidad: "Unidades" }, { nombre: "Lata Pepsi", unidad: "Unidades" }, { nombre: "Lata Pepsi Zero", unidad: "Unidades" }, { nombre: "Red Bull", unidad: "Unidades" }, { nombre: "Red Bull Free", unidad: "Unidades" }],
-            "Pan": [{ nombre: "Pan Whopper", unidad: "Unidades" }, { nombre: "Pan Hamburguesa", unidad: "Unidades" }, { nombre: "Pan Papa", unidad: "Unidades" }, { nombre: "Pan Queso", unidad: "Unidades" }, { nombre: "Pan Sésamo Negro", unidad: "Unidades" }, { nombre: "Pan Masa Madre", unidad: "Unidades" }, { nombre: "Pan Especial", unidad: "Unidades" }],
-            "Otros": [{ nombre: "Vaso Cerámica", unidad: "Unidades" }, { nombre: "Lechuga", unidad: "Kg" }, { nombre: "Cebolla", unidad: "Kg" }, { nombre: "Tomate", unidad: "Kg" }, { nombre: "Lechuga Grill", unidad: "Kg" }]
+            "Carnes": [
+                { nombre: "Whopper Patty", unidad: "Unidades", precio: 490 },
+                { nombre: "Mega Patty", unidad: "Unidades", precio: 257 },
+                { nombre: "Rebel Patty", unidad: "Unidades", precio: 498 },
+                { nombre: "Hamburguesa XT", unidad: "Unidades", precio: 1053 },
+                { nombre: "Chicken Patty", unidad: "Unidades", precio: 551 },
+                { nombre: "Chicken Patty Vegetal", unidad: "Unidades", precio: 542 },
+                { nombre: "Pollo Jr.", unidad: "Unidades", precio: 344 }
+            ],
+            "Snacks": [
+                { nombre: "Aros de cebolla", unidad: "Unidades", precio: 42 },
+                { nombre: "Empanadas", unidad: "Unidades", precio: 153 },
+                { nombre: "Cheese Pillows", unidad: "Unidades", precio: 110 },
+                { nombre: "Chicken Fries", unidad: "Unidades", precio: 64 },
+                { nombre: "Nuggets", unidad: "Unidades", precio: 70 }
+            ],
+            "Postres": [
+                { nombre: "Pie de Manzana", unidad: "Unidades", precio: 428 },
+                { nombre: "Pie de chocolate", unidad: "Unidades", precio: 1176 },
+                { nombre: "Helado", unidad: "Litros", precio: 1578 },
+                { nombre: "Media Luna", unidad: "Unidades", precio: 250 }
+            ],
+            "Bebidas": [
+                { nombre: "Lata Crush", unidad: "Unidades", precio: 562 },
+                { nombre: "Lata Kem", unidad: "Unidades", precio: 562 },
+                { nombre: "Lata Pepsi", unidad: "Unidades", precio: 562 },
+                { nombre: "Lata Pepsi Zero", unidad: "Unidades", precio: 562 },
+                { nombre: "Red Bull", unidad: "Unidades", precio: 1398 }
+            ],
+            "Pan": [
+                { nombre: "Pan Whopper", unidad: "Unidades", precio: 260 },
+                { nombre: "Pan Hamburguesa", unidad: "Unidades", precio: 157 },
+                { nombre: "Pan Papa", unidad: "Unidades", precio: 302 },
+                { nombre: "Pan Masa Madre", unidad: "Unidades", precio: 351 },
+                { nombre: "Pan Especial", unidad: "Unidades", precio: 196 }
+            ],
+            "Otros": [
+                { nombre: "Lechuga", unidad: "Kg", precio: 3189 },
+                { nombre: "Cebolla", unidad: "Kg", precio: 3430 },
+                { nombre: "Tomate", unidad: "Kg", precio: 1640 },
+                { nombre: "Lechuga Grill", unidad: "Kg", precio: 3700 }
+            ]
         };
 
         let categoriaGlobal = "";
@@ -381,6 +419,14 @@
                 return;
             }
 
+            // Buscar el precio del producto seleccionado
+            let precioUnitario = 0;
+            if (productosPorCategoria[categoriaGlobal]) {
+                const prodObj = productosPorCategoria[categoriaGlobal].find(p => p.nombre === producto);
+                if (prodObj) precioUnitario = prodObj.precio || 0;
+            }
+            const montoPerdida = cantidad * precioUnitario;
+
             mermasData.push({
                 id: Date.now(),
                 tienda: tienda,
@@ -390,8 +436,10 @@
                 turno: document.getElementById("turno").value,
                 categoria: categoriaGlobal,
                 producto: producto,
-                cantidad: document.getElementById("cantidad").value,
+                cantidad: cantidad,
                 unidad: unidadGlobal,
+                precioUnitario: precioUnitario,
+                monto: montoPerdida,
                 motivo: motivo,
                 comentarios: document.getElementById("comentarios").value.trim()
             });
@@ -428,6 +476,8 @@
                 const coment = i.comentarios ? i.comentarios : "—";
                 const cat = i.categoria || "—";
                 const cant = i.unidad ? `${i.cantidad} ${i.unidad}` : i.cantidad;
+                const monto = parseFloat(i.monto) || 0;
+                const montoFmt = monto.toLocaleString('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 });
                 const tiendaCorta = i.tienda ? (i.tienda.length > 12 ? i.tienda.substring(0, 12) + "…" : i.tienda) : "—";
                 tbody.innerHTML += `<tr>
                     <td title="${i.tienda || ''}">${tiendaCorta}</td>
@@ -437,6 +487,7 @@
                     <td>${cat}</td>
                     <td>${i.producto}</td>
                     <td>${cant}</td>
+                    <td><strong>${montoFmt}</strong></td>
                     <td><strong>${i.motivo}</strong></td>
                     <td class="comentario-cell">${coment}</td>
                     <td><button class="btn-delete" onclick="eliminarRegistro(${i.id})">X</button></td>
@@ -447,22 +498,25 @@
         function actualizarResumen() {
             const hoy = new Date().toISOString().split('T')[0];
             const delDia = mermasData.filter(i => i.fecha === hoy);
-            document.getElementById("summaryTotal").textContent = `Total de mermas hoy: ${delDia.length}`;
-
-            const contadores = {};
+            
+            // Sumar el monto total de pérdida del día
+            let totalMonto = 0;
             delDia.forEach(i => {
-                const cat = i.categoria || "Sin categoría";
-                contadores[cat] = (contadores[cat] || 0) + 1;
+                totalMonto += (parseFloat(i.monto) || 0);
             });
 
-            const catsDiv = document.getElementById("summaryCats");
-            catsDiv.innerHTML = "";
-            if (Object.keys(contadores).length === 0) {
-                catsDiv.innerHTML = '<div class="summary-chip">Sin registros hoy</div>';
+            const totalElement = document.getElementById("summaryTotal");
+            
+            // Formatear como pesos chilenos
+            const formateado = totalMonto.toLocaleString('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 });
+            totalElement.textContent = formateado;
+
+            // Aplicar color según el umbral de $50.000
+            totalElement.classList.remove('rojo', 'verde');
+            if (totalMonto >= 50000) {
+                totalElement.classList.add('rojo');
             } else {
-                Object.keys(contadores).sort().forEach(cat => {
-                    catsDiv.innerHTML += `<div class="summary-chip">${cat}: <span>${contadores[cat]}</span></div>`;
-                });
+                totalElement.classList.add('verde');
             }
         }
 
@@ -472,11 +526,22 @@
             let data = mermasData;
             if (start && end) data = data.filter(i => i.fecha >= start && i.fecha <= end);
 
-            let csv = "Tienda;Fecha;Hora;Responsable;Turno;Categoría;Producto;Cantidad;Unidad;Motivo;Comentarios\n";
+            // Calcular el monto total del período exportado
+            let totalPeriodo = 0;
+            data.forEach(i => {
+                totalPeriodo += (parseFloat(i.monto) || 0);
+            });
+
+            let csv = "Tienda;Fecha;Hora;Responsable;Turno;Categoría;Producto;Cantidad;Unidad;Precio Unitario;Monto Pérdida;Motivo;Comentarios\n";
             data.forEach(i => {
                 const com = (i.comentarios || "").replace(/;/g, ",").replace(/\n/g, " ");
-                csv += `${i.tienda || ""};${i.fecha};${i.hora};${i.responsable};${i.turno};${i.categoria || ""};${i.producto};${i.cantidad};${i.unidad || ""};${i.motivo};${com}\n`;
+                const monto = parseFloat(i.monto) || 0;
+                const precio = parseFloat(i.precioUnitario) || 0;
+                csv += `${i.tienda || ""};${i.fecha};${i.hora};${i.responsable};${i.turno};${i.categoria || ""};${i.producto};${i.cantidad};${i.unidad || ""};${precio};${monto};${i.motivo};${com}\n`;
             });
+
+            // Agregar fila de total al final
+            csv += `\n;;;;;;;;;"MONTO TOTAL DEL PERÍODO";${totalPeriodo};;\n`;
 
             const hoy = new Date().toISOString().split('T')[0];
             const blob = new Blob(["\uFEFF", csv], { type: 'text/csv;charset=utf-8;' });
