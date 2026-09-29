@@ -1,1362 +1,360 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="description" content="LÚPICA – Control de Mermas BK. Sistema operativo de registro y seguimiento de mermas.">
-  <title>LÚPICA – Control de Mermas BK</title>
-  <style>
-    :root {
-      --cream: #FDF8F0;
-      --cream-dark: #F5EDE0;
-      --brown: #3D2314;
-      --brown-light: #6B4423;
-      --red: #DA291C;
-      --red-dark: #B71C1C;
-      --orange: #F47321;
-      --orange-light: #FF8A3D;
-      --gold: #FFB81C;
-      --white: #FFFFFF;
-      --gray-50: #FAFAFA;
-      --gray-100: #F5F5F5;
-      --gray-200: #EEEEEE;
-      --gray-300: #E0E0E0;
-      --gray-500: #9E9E9E;
-      --gray-700: #616161;
-      --green: #2E7D32;
-      --green-bg: #E8F5E9;
-      --yellow: #E65100;
-      --yellow-bg: #FFF3E0;
-      --red-bg: #FFEBEE;
-      --shadow-sm: 0 1px 3px rgba(61,35,20,0.08);
-      --shadow: 0 4px 12px rgba(61,35,20,0.1);
-      --shadow-lg: 0 8px 24px rgba(61,35,20,0.12);
-      --radius: 12px;
-      --radius-sm: 8px;
-      --font: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    html { font-size: 16px; }
-    body {
-      font-family: var(--font);
-      background: var(--cream);
-      color: var(--brown);
-      min-height: 100dvh;
-      line-height: 1.45;
-      -webkit-font-smoothing: antialiased;
-    }
-
-    /* ========== SPLASH ========== */
-    #splash {
-      position: fixed; inset: 0; z-index: 9999;
-      background: linear-gradient(160deg, #3D2314 0%, #5C3317 40%, #DA291C 100%);
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      padding: 24px; text-align: center;
-      transition: opacity 0.4s ease, visibility 0.4s;
-    }
-    #splash.hide { opacity: 0; visibility: hidden; pointer-events: none; display: none !important; }
-    .splash-bk-logo {
-      width: 140px; margin-bottom: 20px;
-      filter: drop-shadow(0 8px 24px rgba(0,0,0,0.35));
-      line-height: 0;
-    }
-    .splash-bk-logo svg { width: 140px; height: auto; display: block; margin: 0 auto; }
-    .splash-title {
-      font-size: 2.4rem; font-weight: 800; color: var(--white);
-      letter-spacing: 2px; margin-bottom: 8px;
-    }
-    .splash-version {
-      font-size: 0.75rem; color: rgba(255,255,255,0.55); margin-bottom: 40px;
-    }
-    .btn-entrar {
-      background: var(--white); color: var(--brown); border: none;
-      padding: 16px 48px; font-size: 1.1rem; font-weight: 700;
-      border-radius: 50px; cursor: pointer; letter-spacing: 1px;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.25);
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-    .btn-entrar:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,0,0,0.3); }
-    .btn-entrar:active { transform: translateY(0); }
-
-    .waste-tienda-row {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 8px 10px; border-bottom: 1px solid var(--gray-200);
-      cursor: pointer; border-radius: 6px; gap: 8px;
-    }
-    .waste-tienda-row:hover { background: var(--cream); }
-    .waste-tienda-row.active {
-      background: #FFF5EE; border: 1.5px solid var(--orange);
-    }
-    .waste-tienda-row .wt-name { font-weight: 600; color: var(--brown); flex: 1; }
-    .waste-tienda-row .wt-monto { font-weight: 700; color: var(--green); white-space: nowrap; }
-    .waste-tienda-row .wt-empty { color: var(--gray-500); font-weight: 500; }
-
-    /* ========== LOGIN ========== */
-    #loginScreen {
-      position: fixed; inset: 0; z-index: 10000;
-      background: linear-gradient(160deg, #3D2314 0%, #5C3317 40%, #DA291C 100%);
-      display: none; flex-direction: column; align-items: center; justify-content: center;
-      padding: 24px;
-    }
-    #loginScreen.show { display: flex; }
-    #loginScreen.hide { display: none; }
-    #loginScreen, #registerScreen { display: none !important; }
-    .login-card {
-      background: #FFFFFF; border-radius: 16px; padding: 32px 28px;
-      width: 100%; max-width: 380px; box-shadow: 0 12px 40px rgba(0,0,0,0.35);
-      text-align: center; position: relative; z-index: 1;
-    }
-    .login-card h2 {
-      font-size: 1.35rem; font-weight: 800; color: var(--brown); margin-bottom: 4px;
-    }
-    .login-card .login-hint {
-      font-size: 0.8rem; color: var(--gray-500); margin-bottom: 20px;
-    }
-    .login-card label { text-align: left; }
-    .login-card input {
-      margin-bottom: 14px; text-align: left; letter-spacing: normal; font-size: 0.95rem;
-    }
-    .login-error {
-      display: none; background: #FFEBEE; color: #C62828; padding: 10px;
-      border-radius: 8px; font-size: 0.8rem; font-weight: 600; margin-bottom: 12px;
-    }
-    .login-error.show { display: block; }
-    .login-footer {
-      margin-top: 16px; font-size: 0.75rem; color: var(--gray-500);
-    }
-    .login-footer button {
-      background: none; border: none; color: var(--orange); font-weight: 700;
-      cursor: pointer; font-size: 0.8rem; text-decoration: underline;
-    }
-    .user-badge {
-      display: flex; align-items: center; gap: 8px; background: var(--cream);
-      padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600;
-      border: 1.5px solid var(--gray-300); max-width: 200px;
-    }
-    .user-badge .ub-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .user-badge .ub-rol {
-      font-size: 0.65rem; background: var(--orange); color: white;
-      padding: 2px 6px; border-radius: 10px; flex-shrink: 0;
-    }
-    .user-badge .ub-rol.admin { background: var(--red); }
-    .user-badge .ub-rol.operador { background: var(--gray-500); }
-
-    /* ========== APP ========== */
-    #app { display: none; min-height: 100dvh; padding: 12px; max-width: 1200px; margin: 0 auto; }
-    #app.show { display: block; }
-
-    /* Header */
-    .app-header {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 12px 16px; background: var(--white); border-radius: var(--radius);
-      box-shadow: var(--shadow-sm); margin-bottom: 16px; gap: 12px; flex-wrap: wrap;
-    }
-    .brand {
-      display: flex; align-items: center; gap: 10px;
-    }
-    .brand-icon {
-      width: 40px; height: 40px; background: var(--red); border-radius: 10px;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .brand-icon svg { width: 22px; height: 22px; }
-    .brand-text h1 { font-size: 1.15rem; font-weight: 800; color: var(--red); letter-spacing: 0.5px; }
-    .brand-text span { font-size: 0.7rem; color: var(--gray-500); font-weight: 500; }
-    .header-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-    .badge-version {
-      font-size: 0.65rem; background: var(--cream-dark); color: var(--brown-light);
-      padding: 4px 8px; border-radius: 20px; font-weight: 600;
-    }
-    .btn-icon {
-      width: 40px; height: 40px; border: 1.5px solid var(--gray-300); background: var(--white);
-      border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center;
-      font-size: 1.1rem; transition: all 0.15s; color: var(--brown);
-    }
-    .btn-icon:hover { border-color: var(--orange); background: var(--cream); }
-
-    /* Layout */
-    .main-grid {
-      display: grid; gap: 16px;
-      grid-template-columns: 1fr;
-    }
-    @media (min-width: 900px) {
-      .main-grid { grid-template-columns: 1fr 1fr; align-items: start; }
-      .full-width { grid-column: 1 / -1; }
-    }
-
-    /* Cards */
-    .card {
-      background: var(--white); border-radius: var(--radius);
-      box-shadow: var(--shadow-sm); padding: 20px;
-      border: 1px solid rgba(61,35,20,0.06);
-    }
-    .card-title {
-      font-size: 0.85rem; font-weight: 700; text-transform: uppercase;
-      letter-spacing: 0.5px; color: var(--brown); margin-bottom: 16px;
-      display: flex; align-items: center; gap: 8px;
-      padding-bottom: 10px; border-bottom: 2px solid var(--cream-dark);
-    }
-
-    /* Form elements */
-    label {
-      display: block; font-size: 0.75rem; font-weight: 700;
-      text-transform: uppercase; letter-spacing: 0.4px;
-      color: var(--brown-light); margin-bottom: 6px;
-    }
-    select, input[type="text"], input[type="number"], input[type="date"],
-    input[type="time"], input[type="email"], input[type="password"], textarea {
-      width: 100%; padding: 11px 14px; border: 1.5px solid var(--gray-300);
-      border-radius: var(--radius-sm); background: var(--gray-50);
-      color: var(--brown); font-size: 0.95rem; font-weight: 500;
-      font-family: inherit; outline: none; transition: border-color 0.15s, box-shadow 0.15s;
-      margin-bottom: 14px;
-    }
-    select:focus, input:focus, textarea:focus {
-      border-color: var(--orange); box-shadow: 0 0 0 3px rgba(244,115,33,0.15);
-      background: var(--white);
-    }
-    textarea { resize: vertical; min-height: 60px; }
-
-    .form-row {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
-    }
-    @media (max-width: 480px) {
-      .form-row { grid-template-columns: 1fr; }
-    }
-
-    /* Chips categorías */
-    .chip-grid {
-      display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px;
-    }
-    .chip {
-      padding: 12px 6px; border: 1.5px solid var(--gray-300); border-radius: var(--radius-sm);
-      background: var(--gray-50); text-align: center; font-size: 0.72rem; font-weight: 700;
-      text-transform: uppercase; cursor: pointer; transition: all 0.15s;
-      color: var(--brown); user-select: none;
-    }
-    .chip:hover { border-color: var(--orange); background: #FFF5EE; }
-    .chip.active {
-      background: var(--orange); color: white; border-color: var(--orange);
-      box-shadow: 0 2px 8px rgba(244,115,33,0.3);
-    }
-
-    .unit-hint {
-      font-size: 0.75rem; color: var(--orange); font-weight: 600;
-      margin-top: -10px; margin-bottom: 12px;
-    }
-
-    /* Botones */
-    .btn {
-      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-      padding: 13px 20px; border: none; border-radius: var(--radius-sm);
-      font-size: 0.9rem; font-weight: 700; font-family: inherit;
-      cursor: pointer; transition: all 0.15s; width: 100%;
-    }
-    .btn-primary {
-      background: var(--red); color: white;
-      box-shadow: 0 3px 10px rgba(218,41,28,0.3);
-    }
-    .btn-primary:hover { background: var(--red-dark); transform: translateY(-1px); }
-    .btn-primary:active { transform: translateY(0); }
-    .btn-secondary {
-      background: var(--cream); color: var(--brown); border: 1.5px solid var(--gray-300);
-    }
-    .btn-secondary:hover { border-color: var(--orange); background: #FFF5EE; }
-    .btn-ghost {
-      background: transparent; color: var(--brown-light); border: 1.5px solid var(--gray-300);
-      padding: 10px 14px; font-size: 0.8rem;
-    }
-    .btn-ghost:hover { border-color: var(--orange); color: var(--orange); }
-    .btn-danger {
-      background: var(--red-bg); color: var(--red); border: 1.5px solid #FFCDD2;
-      font-size: 0.8rem; padding: 10px;
-    }
-    .btn-danger:hover { background: #FFCDD2; }
-    .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
-    .btn-row .btn { flex: 1; min-width: 120px; }
-
-    /* Admin badge */
-    .admin-bar {
-      display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
-      padding: 10px 14px; background: var(--cream); border-radius: var(--radius-sm);
-      border: 1.5px solid var(--gray-300);
-    }
-    .admin-bar.active {
-      background: #E8F5E9; border-color: #A5D6A7;
-    }
-    .admin-status { font-size: 0.8rem; font-weight: 600; flex: 1; }
-    .admin-status .on { color: var(--green); }
-    .admin-status .off { color: var(--gray-500); }
-
-    /* Dashboard */
-    .summary-grid {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
-    }
-    @media (max-width: 600px) {
-      .summary-grid { grid-template-columns: 1fr; }
-    }
-    .stat-block { text-align: center; }
-    .stat-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: var(--gray-500); margin-bottom: 4px; }
-    .stat-value { font-size: 1.6rem; font-weight: 800; color: var(--green); }
-    .stat-value.zero { color: var(--gray-500); }
-    .turno-row {
-      display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 12px;
-    }
-    .turno-box {
-      background: var(--gray-50); border-radius: var(--radius-sm); padding: 10px 6px;
-      text-align: center; border: 1px solid var(--gray-200);
-    }
-    .turno-box .t-label { font-size: 0.65rem; font-weight: 700; color: var(--gray-500); text-transform: uppercase; }
-    .turno-box .t-val { font-size: 0.95rem; font-weight: 700; color: var(--brown); margin-top: 2px; }
-
-    .lupa-item {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 10px 12px; background: var(--gray-50); border-radius: var(--radius-sm);
-      margin-bottom: 8px; border: 1px solid var(--gray-200); font-size: 0.85rem;
-    }
-    .lupa-item strong { font-size: 1.05rem; }
-    .waste-verde { color: var(--green); }
-    .waste-amarillo { color: var(--yellow); }
-    .waste-rojo { color: var(--red); }
-
-    .estado-lupa {
-      margin-top: 10px; padding: 10px 12px; border-radius: var(--radius-sm);
-      font-size: 0.8rem; font-weight: 600; text-align: center;
-      background: var(--gray-100); color: var(--gray-700);
-    }
-    .estado-lupa.bueno { background: var(--green-bg); color: var(--green); }
-    .estado-lupa.alerta { background: var(--yellow-bg); color: var(--yellow); }
-    .estado-lupa.critico { background: var(--red-bg); color: var(--red); }
-
-    /* Tabla */
-    .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 8px; }
-    table {
-      width: 100%; border-collapse: collapse; font-size: 0.78rem; min-width: 700px;
-    }
-    thead th {
-      background: var(--cream-dark); color: var(--brown); font-weight: 700;
-      text-transform: uppercase; font-size: 0.68rem; letter-spacing: 0.3px;
-      padding: 10px 8px; text-align: left; position: sticky; top: 0; white-space: nowrap;
-    }
-    tbody td {
-      padding: 9px 8px; border-bottom: 1px solid var(--gray-200);
-      vertical-align: middle;
-    }
-    tbody tr:hover { background: #FFFBF5; }
-    .btn-del {
-      background: none; border: none; color: var(--red); cursor: pointer;
-      font-size: 1rem; padding: 4px 6px; border-radius: 4px;
-    }
-    .btn-del:hover { background: var(--red-bg); }
-    .record-count { font-size: 0.8rem; color: var(--gray-500); margin-bottom: 8px; font-weight: 600; }
-
-    /* Offline */
-    .offline-banner {
-      display: none; background: var(--yellow-bg); color: var(--yellow);
-      text-align: center; padding: 8px; font-size: 0.8rem; font-weight: 600;
-      border-radius: var(--radius-sm); margin-bottom: 12px;
-    }
-    .offline-banner.show { display: block; }
-
-    /* Email box */
-    .email-box {
-      display: none; background: var(--gray-50); border: 1.5px solid var(--gray-200);
-      border-radius: var(--radius-sm); padding: 12px; margin-bottom: 14px;
-    }
-    .email-box.show { display: block; }
-    .email-actions { display: flex; align-items: center; gap: 10px; margin-top: -6px; }
-    .email-saved { font-size: 0.75rem; color: var(--green); font-weight: 600; display: none; }
-
-    /* Error */
-    .error-msg {
-      display: none; color: var(--red); font-size: 0.75rem; font-weight: 600;
-      margin-top: -10px; margin-bottom: 10px;
-    }
-
-    /* Toast */
-    #toast {
-      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
-      background: var(--brown); color: white; padding: 12px 24px; border-radius: 50px;
-      font-size: 0.9rem; font-weight: 600; z-index: 10000; opacity: 0;
-      transition: all 0.3s ease; pointer-events: none; white-space: nowrap;
-      box-shadow: var(--shadow-lg);
-    }
-    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-    /* Modals */
-    .modal-overlay {
-      position: fixed; inset: 0; background: rgba(61,35,20,0.45);
-      display: flex; align-items: center; justify-content: center;
-      z-index: 9000; opacity: 0; visibility: hidden; transition: all 0.25s;
-      padding: 16px;
-    }
-    .modal-overlay.show { opacity: 1; visibility: visible; }
-    .modal-box {
-      background: var(--white); border-radius: var(--radius); padding: 28px 24px;
-      max-width: 400px; width: 100%; box-shadow: var(--shadow-lg);
-      max-height: 90dvh; overflow-y: auto;
-    }
-    .modal-box h3 {
-      font-size: 1.15rem; font-weight: 800; margin-bottom: 8px; color: var(--brown);
-      text-align: center;
-    }
-    .modal-box p { font-size: 0.85rem; color: var(--gray-700); text-align: center; margin-bottom: 16px; }
-    .modal-box input[type="password"], .modal-box input[type="text"] {
-      text-align: center; font-size: 1.3rem; letter-spacing: 6px; font-weight: 700;
-    }
-    .modal-actions { display: flex; gap: 10px; margin-top: 16px; }
-    .modal-actions .btn { flex: 1; }
-
-    /* Manual modal larger */
-    #manualModal .modal-box { max-width: 520px; text-align: left; }
-    #manualModal h3 { text-align: left; }
-    #manualModal h4 { font-size: 0.9rem; margin: 16px 0 8px; color: var(--orange); }
-    #manualModal ol, #manualModal ul { padding-left: 20px; font-size: 0.85rem; margin-bottom: 8px; }
-    #manualModal li { margin-bottom: 4px; }
-
-    /* Admin controls */
-    #adminControls { display: none; margin-top: 12px; }
-    #adminControls.show { display: block; }
-
-    /* Dark mode (simple) */
-    body.dark {
-      --cream: #1A1410; --cream-dark: #2A2118; --white: #241C16;
-      --gray-50: #2A2118; --gray-100: #332920; --gray-200: #3D3228;
-      --gray-300: #4A3D30; --gray-500: #A09080; --brown: #F5EDE0;
-      --brown-light: #D4C4B0; --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
-      --shadow: 0 4px 12px rgba(0,0,0,0.4);
-    }
-    body.dark select, body.dark input, body.dark textarea {
-      background: #2A2118; color: #F5EDE0; border-color: #4A3D30;
-    }
-    body.dark .chip { background: #2A2118; color: #F5EDE0; border-color: #4A3D30; }
-    body.dark thead th { background: #2A2118; }
-    body.dark tbody tr:hover { background: #2A2118; }
-
-    /* Responsive tweaks */
-    @media (min-width: 600px) {
-      #app { padding: 20px; }
-      .card { padding: 24px; }
-    }
-    @media (min-width: 900px) {
-      .chip-grid { grid-template-columns: repeat(6, 1fr); }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>LÚPICA – Control de Mermas BK</title>
+<style>
+:root{--cream:#FDF8F0;--cream-dark:#F5EDE0;--brown:#3D2314;--brown-light:#6B4423;--red:#DA291C;--red-dark:#B71C1C;--orange:#F47321;--white:#FFF;--gray-50:#FAFAFA;--gray-100:#F5F5F5;--gray-200:#EEE;--gray-300:#E0E0E0;--gray-500:#9E9E9E;--gray-700:#616161;--green:#2E7D32;--green-bg:#E8F5E9;--yellow:#E65100;--yellow-bg:#FFF3E0;--red-bg:#FFEBEE;--shadow-sm:0 1px 3px rgba(61,35,20,.08);--radius:12px;--radius-sm:8px;--font:system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:var(--cream);color:var(--brown);min-height:100dvh;line-height:1.45}
+#splash{position:fixed;inset:0;z-index:9999;background:linear-gradient(160deg,#3D2314 0%,#5C3317 40%,#DA291C 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center}
+#splash.hide{display:none!important}
+.splash-logo{width:150px;margin-bottom:20px;filter:drop-shadow(0 8px 24px rgba(0,0,0,.35))}
+.splash-title{font-size:2.4rem;font-weight:800;color:#fff;letter-spacing:2px;margin-bottom:28px}
+.btn-entrar{background:#fff;color:var(--brown);border:none;padding:16px 48px;font-size:1.1rem;font-weight:700;border-radius:50px;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,.25)}
+.btn-entrar:hover{transform:translateY(-2px)}
+#app{display:none;min-height:100dvh;padding:12px;max-width:1200px;margin:0 auto}
+#app.show{display:block}
+.app-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow-sm);margin-bottom:16px;gap:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-icon{width:40px;height:40px;background:var(--red);border-radius:10px;display:flex;align-items:center;justify-content:center}
+.brand-text h1{font-size:1.15rem;font-weight:800;color:var(--red)}
+.brand-text span{font-size:.7rem;color:var(--gray-500)}
+.header-actions{display:flex;gap:8px}
+.btn-icon{width:40px;height:40px;border:1.5px solid var(--gray-300);background:#fff;border-radius:10px;cursor:pointer;font-size:1.1rem}
+.main-grid{display:grid;gap:16px;grid-template-columns:1fr}
+@media(min-width:900px){.main-grid{grid-template-columns:1fr 1fr;align-items:start}.full-width{grid-column:1/-1}.chip-grid{grid-template-columns:repeat(6,1fr)!important}}
+.card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow-sm);padding:20px;border:1px solid rgba(61,35,20,.06)}
+.card-title{font-size:.85rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--brown);margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid var(--cream-dark)}
+label{display:block;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--brown-light);margin-bottom:6px}
+select,input[type=text],input[type=number],input[type=date],input[type=time],input[type=email],input[type=password],textarea{width:100%;padding:11px 14px;border:1.5px solid var(--gray-300);border-radius:var(--radius-sm);background:var(--gray-50);color:var(--brown);font-size:.95rem;font-weight:500;font-family:inherit;outline:none;margin-bottom:14px}
+select:focus,input:focus,textarea:focus{border-color:var(--orange);box-shadow:0 0 0 3px rgba(244,115,33,.15);background:#fff}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:480px){.form-row{grid-template-columns:1fr}}
+.chip-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.chip{padding:12px 6px;border:1.5px solid var(--gray-300);border-radius:var(--radius-sm);background:var(--gray-50);text-align:center;font-size:.72rem;font-weight:700;text-transform:uppercase;cursor:pointer;color:var(--brown)}
+.chip:hover{border-color:var(--orange);background:#FFF5EE}
+.chip.active{background:var(--orange);color:#fff;border-color:var(--orange)}
+.unit-hint{font-size:.75rem;color:var(--orange);font-weight:600;margin-top:-10px;margin-bottom:12px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:13px 20px;border:none;border-radius:var(--radius-sm);font-size:.9rem;font-weight:700;font-family:inherit;cursor:pointer;width:100%}
+.btn-primary{background:var(--red);color:#fff;box-shadow:0 3px 10px rgba(218,41,28,.3)}
+.btn-primary:hover{background:var(--red-dark)}
+.btn-secondary{background:var(--cream);color:var(--brown);border:1.5px solid var(--gray-300)}
+.btn-ghost{background:transparent;color:var(--brown-light);border:1.5px solid var(--gray-300);padding:10px 14px;font-size:.8rem}
+.btn-danger{background:var(--red-bg);color:var(--red);border:1.5px solid #FFCDD2;font-size:.8rem;padding:10px}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.btn-row .btn{flex:1;min-width:120px}
+.admin-bar{display:flex;align-items:center;gap:10px;margin-bottom:14px;padding:10px 14px;background:var(--cream);border-radius:var(--radius-sm);border:1.5px solid var(--gray-300)}
+.admin-bar.active{background:#E8F5E9;border-color:#A5D6A7}
+.admin-status{font-size:.8rem;font-weight:600;flex:1}
+.admin-status .on{color:var(--green)}.admin-status .off{color:var(--gray-500)}
+.summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:600px){.summary-grid{grid-template-columns:1fr}}
+.stat-block{text-align:center}
+.stat-label{font-size:.7rem;font-weight:700;text-transform:uppercase;color:var(--gray-500);margin-bottom:4px}
+.stat-value{font-size:1.6rem;font-weight:800;color:var(--green)}
+.stat-value.zero{color:var(--gray-500)}
+.turno-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px}
+.turno-box{background:var(--gray-50);border-radius:var(--radius-sm);padding:10px 6px;text-align:center;border:1px solid var(--gray-200)}
+.turno-box .t-label{font-size:.65rem;font-weight:700;color:var(--gray-500);text-transform:uppercase}
+.turno-box .t-val{font-size:.95rem;font-weight:700;color:var(--brown);margin-top:2px}
+.lupa-item{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--gray-50);border-radius:var(--radius-sm);margin-bottom:8px;border:1px solid var(--gray-200);font-size:.85rem}
+.lupa-item strong{font-size:1.05rem}
+.waste-verde{color:var(--green)}.waste-amarillo{color:var(--yellow)}.waste-rojo{color:var(--red)}
+.estado-lupa{margin-top:10px;padding:10px 12px;border-radius:var(--radius-sm);font-size:.8rem;font-weight:600;text-align:center;background:var(--gray-100);color:var(--gray-700)}
+.estado-lupa.bueno{background:var(--green-bg);color:var(--green)}
+.estado-lupa.alerta{background:var(--yellow-bg);color:var(--yellow)}
+.estado-lupa.critico{background:var(--red-bg);color:var(--red)}
+.table-wrap{overflow-x:auto;margin-top:8px}
+table{width:100%;border-collapse:collapse;font-size:.78rem;min-width:700px}
+thead th{background:var(--cream-dark);color:var(--brown);font-weight:700;text-transform:uppercase;font-size:.68rem;padding:10px 8px;text-align:left;white-space:nowrap}
+tbody td{padding:9px 8px;border-bottom:1px solid var(--gray-200)}
+.btn-del{background:none;border:none;color:var(--red);cursor:pointer;font-size:1rem;padding:4px 6px}
+.record-count{font-size:.8rem;color:var(--gray-500);margin-bottom:8px;font-weight:600}
+.offline-banner{display:none;background:var(--yellow-bg);color:var(--yellow);text-align:center;padding:8px;font-size:.8rem;font-weight:600;border-radius:var(--radius-sm);margin-bottom:12px}
+.offline-banner.show{display:block}
+.email-box{display:none;background:var(--gray-50);border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);padding:12px;margin-bottom:14px}
+.email-box.show{display:block}
+.email-actions{display:flex;align-items:center;gap:10px;margin-top:-6px}
+.email-saved{font-size:.75rem;color:var(--green);font-weight:600;display:none}
+.error-msg{display:none;color:var(--red);font-size:.75rem;font-weight:600;margin-top:-10px;margin-bottom:10px}
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--brown);color:#fff;padding:12px 24px;border-radius:50px;font-size:.9rem;font-weight:600;z-index:10000;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.modal-overlay{position:fixed;inset:0;background:rgba(61,35,20,.45);display:flex;align-items:center;justify-content:center;z-index:9000;opacity:0;visibility:hidden;transition:all .25s;padding:16px}
+.modal-overlay.show{opacity:1;visibility:visible}
+.modal-box{background:#fff;border-radius:var(--radius);padding:28px 24px;max-width:400px;width:100%;max-height:90dvh;overflow-y:auto}
+.modal-box h3{font-size:1.15rem;font-weight:800;margin-bottom:8px;color:var(--brown);text-align:center}
+.modal-box p{font-size:.85rem;color:var(--gray-700);text-align:center;margin-bottom:16px}
+.modal-box input[type=password]{text-align:center;font-size:1.3rem;letter-spacing:6px;font-weight:700}
+.modal-actions{display:flex;gap:10px;margin-top:16px}
+.modal-actions .btn{flex:1}
+#adminControls{display:none;margin-top:12px}
+#adminControls.show{display:block}
+#manualModal .modal-box{max-width:520px;text-align:left}
+#manualModal h3{text-align:left}
+#manualModal h4{font-size:.9rem;margin:16px 0 8px;color:var(--orange)}
+#manualModal ol,#manualModal ul{padding-left:20px;font-size:.85rem;margin-bottom:8px}
+body.dark{--cream:#1A1410;--cream-dark:#2A2118;--white:#241C16;--gray-50:#2A2118;--gray-100:#332920;--gray-200:#3D3228;--gray-300:#4A3D30;--gray-500:#A09080;--brown:#F5EDE0;--brown-light:#D4C4B0}
+body.dark select,body.dark input,body.dark textarea{background:#2A2118;color:#F5EDE0;border-color:#4A3D30}
+body.dark .chip{background:#2A2118;color:#F5EDE0;border-color:#4A3D30}
+</style>
 </head>
 <body>
-
-  <!-- ========== SPLASH ========== -->
-  <div id="splash">
-    <div class="splash-bk-logo" aria-label="Burger King">
-      <svg viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg" width="140" height="154">
-        <defs>
-          <clipPath id="bun"><rect x="10" y="8" width="180" height="204" rx="40"/></clipPath>
-        </defs>
-        <rect x="10" y="8" width="180" height="204" rx="40" fill="#F5E6C8"/>
-        <path d="M20 50 Q100 8 180 50 L180 70 Q100 35 20 70 Z" fill="#F47321"/>
-        <path d="M20 175 Q100 210 180 175 L180 155 Q100 185 20 155 Z" fill="#F47321"/>
-        <text x="100" y="115" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="32" fill="#DA291C">BURGER</text>
-        <text x="100" y="152" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="36" fill="#DA291C">KING</text>
-      </svg>
-    </div>
-    <div class="splash-title">LÚPICA</div>
-    <button class="btn-entrar" onclick="entrarApp()">ENTRAR</button>
-  </div>
-
-  <!-- ========== APP ========== -->
-  <div id="app">
-    <div class="offline-banner" id="offlineBanner">📡 Sin conexión — los datos se guardan en este equipo</div>
-
-    <!-- Header -->
-    <header class="app-header">
-      <div class="brand">
-        <div class="brand-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
-        </div>
-        <div class="brand-text">
-          <h1>LÚPICA</h1>
-          <span>Registro de mermas + Lupa operativa</span>
-        </div>
-      </div>
-      <div class="header-actions">
-        <button class="btn-icon" onclick="toggleDark()" title="Modo oscuro">🌓</button>
-        <button class="btn-icon" onclick="abrirManual()" title="Cómo usar">❓</button>
-      </div>
-    </header>
-
-    <div class="main-grid">
-
-      <!-- ===== FORMULARIO ===== -->
-      <div class="card" id="formCard">
-        <div class="card-title">📝 Registrar Merma</div>
-
-        <form id="mermaForm" onsubmit="return false;">
-          <label for="tienda">Tienda</label>
-          <select id="tienda" required onchange="onTiendaChange()">
-            <option value="" disabled selected>-- Selecciona la Tienda --</option>
-            <option value="Costanera Center">Costanera Center</option>
-            <option value="Curicó">Curicó</option>
-            <option value="Guardia Vieja">Guardia Vieja</option>
-            <option value="Hernando de Aguirre II">Hernando de Aguirre II</option>
-            <option value="Mall Plaza Maule Talca">Mall Plaza Maule Talca</option>
-            <option value="Mall Plaza Norte">Mall Plaza Norte</option>
-            <option value="Manuel Montt">Manuel Montt</option>
-            <option value="Pedro Fontova">Pedro Fontova</option>
-            <option value="Plaza Norte 2 II">Plaza Norte 2 II</option>
-            <option value="Suecia">Suecia</option>
-            <option value="Talca Las Rastras">Talca Las Rastras</option>
-          </select>
-          <div id="errorTienda" class="error-msg">Selecciona una tienda</div>
-
-          <div id="emailTiendaBox" class="email-box">
-            <label for="emailTienda">Correo de la tienda (opcional)</label>
-            <input type="email" id="emailTienda" placeholder="ej: talca.lasrastras@bk.cl">
-            <div class="email-actions">
-              <button type="button" class="btn btn-ghost" style="width:auto;padding:8px 14px;" onclick="guardarEmailTienda()">Guardar correo</button>
-              <span id="emailSavedMsg" class="email-saved">✓ Guardado</span>
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div>
-              <label for="fecha">Fecha</label>
-              <input type="date" id="fecha" required onchange="actualizarTurnoAuto()">
-            </div>
-            <div>
-              <label for="hora">Hora</label>
-              <input type="time" id="hora" required onchange="actualizarTurnoAuto()">
-            </div>
-          </div>
-
-          <label for="responsable">Responsable</label>
-          <input type="text" id="responsable" placeholder="Nombre completo" required autocomplete="name">
-          <div id="errorResponsable" class="error-msg">Ingresa el nombre del responsable</div>
-
-          <label for="turno">Turno</label>
-          <select id="turno" required>
-            <option value="AM">AM</option>
-            <option value="PM">PM</option>
-            <option value="TRASNOCHE">TRASNOCHE</option>
-          </select>
-
-          <!-- Admin -->
-          <div class="admin-bar" id="adminBar">
-            <div class="admin-status" id="adminStatus">
-              <span class="off">🔒 Modo Gerente desactivado</span>
-            </div>
-            <button type="button" class="btn btn-ghost" style="width:auto;" id="btnAdmin" onclick="toggleGerente()">Activar</button>
-          </div>
-
-          <label>Categoría</label>
-          <div class="chip-grid" id="chipGrid">
-            <div class="chip" data-cat="Carnes" onclick="seleccionarCategoria('Carnes', this)">🥩 Carnes</div>
-            <div class="chip" data-cat="Snacks" onclick="seleccionarCategoria('Snacks', this)">🍟 Snacks</div>
-            <div class="chip" data-cat="Postres" onclick="seleccionarCategoria('Postres', this)">🍦 Postres</div>
-            <div class="chip" data-cat="Bebidas" onclick="seleccionarCategoria('Bebidas', this)">🥤 Bebidas</div>
-            <div class="chip" data-cat="Pan" onclick="seleccionarCategoria('Pan', this)">🍞 Pan</div>
-            <div class="chip" data-cat="Otros" onclick="seleccionarCategoria('Otros', this)">📦 Otros</div>
-          </div>
-          <div id="errorCategoria" class="error-msg">Selecciona una categoría</div>
-
-          <label for="producto">Producto</label>
-          <select id="producto" required onchange="actualizarUnidad()">
-            <option value="" disabled selected>-- Elige una categoría primero --</option>
-          </select>
-          <div id="errorProducto" class="error-msg">Selecciona un producto</div>
-          <div class="unit-hint" id="unitHint" style="display:none;"></div>
-
-          <label for="cantidad">Cantidad</label>
-          <input type="number" id="cantidad" min="0.01" step="any" placeholder="Ingresa cantidad" required>
-          <div id="errorCantidad" class="error-msg">La cantidad debe ser mayor a 0</div>
-
-          <label for="motivo">Motivo</label>
-          <select id="motivo" required>
-            <option value="" disabled selected>-- Selecciona el Motivo --</option>
-            <option value="QUEMADO / CRUDO">QUEMADO / CRUDO</option>
-            <option value="VENCIDO / CADUCADO">VENCIDO / CADUCADO</option>
-            <option value="CAIDA AL PISO">CAIDA AL PISO</option>
-            <option value="ERROR PREPARACIÓN">ERROR PREPARACIÓN</option>
-            <option value="MAL ESTADO DE ORIGEN">MAL ESTADO DE ORIGEN</option>
-            <option value="OPERACION">OPERACION</option>
-          </select>
-          <div id="errorMotivo" class="error-msg">Selecciona un motivo</div>
-
-          <label for="comentarios">Justificación / Detalles</label>
-          <textarea id="comentarios" rows="2" placeholder="Notas opcionales..."></textarea>
-
-          <button type="button" class="btn btn-primary" onclick="registrarFila()">💾 Registrar Fila</button>
-        </form>
-      </div>
-
-      <!-- ===== DASHBOARD ===== -->
-      <div class="card" id="dashCard">
-        <div class="card-title">📊 Resumen Operativo</div>
-
-        <label for="filtroTiendaResumen">Filtrar por tienda</label>
-        <select id="filtroTiendaResumen" onchange="actualizarResumen()">
-          <option value="">Todas las tiendas</option>
-        </select>
-
-        <div class="summary-grid">
-          <div>
-            <div class="stat-block">
-              <div class="stat-label">📅 Diario</div>
-              <div class="stat-value zero" id="summaryTotal">$0</div>
-            </div>
-            <div class="turno-row">
-              <div class="turno-box"><div class="t-label">AM</div><div class="t-val" id="turnoAM">$0</div></div>
-              <div class="turno-box"><div class="t-label">PM</div><div class="t-val" id="turnoPM">$0</div></div>
-              <div class="turno-box"><div class="t-label">Tras.</div><div class="t-val" id="turnoTR">$0</div></div>
-            </div>
-            <div class="stat-block" style="margin-top:16px;">
-              <div class="stat-label">📆 Acumulado mensual</div>
-              <div class="stat-value zero" id="summaryMensual">$0</div>
-            </div>
-          </div>
-
-          <div>
-            <div class="card-title" style="margin-bottom:12px;border:none;padding:0;">🔍 Resumen Lupa</div>
-            <label for="valorBase">Venta del día ($)</label>
-            <input type="number" id="valorBase" placeholder="Ej: 6678202" oninput="guardarVentaDia(); calcularLupa()">
-
-            <div class="lupa-item">
-              <span>% Waste (día)</span>
-              <strong id="porcentajeMerma" class="waste-verde">0,00%</strong>
-            </div>
-            <div class="lupa-item">
-              <span>% Waste (mes)</span>
-              <strong id="porcentajeMermaMes" class="waste-verde">0,00%</strong>
-            </div>
-            <div class="lupa-item">
-              <span>Dif Total %</span>
-              <span style="display:flex;align-items:center;gap:4px;">
-                <input type="number" id="difTotalLupa" step="0.01" placeholder="-0.33" style="width:70px;margin:0;padding:6px;text-align:center;" oninput="calcularLupa()">
-                <span>%</span>
-              </span>
-            </div>
-
-            <div id="estadoLupa" class="estado-lupa">Ingresa la venta del día</div>
-
-            <div class="btn-row" id="adminControls">
-              <button type="button" class="btn btn-secondary" onclick="exportarMes()">📥 Exportar mes</button>
-              <button type="button" class="btn btn-secondary" onclick="resumenCorreo()">✉️ Enviar resumen</button>
-              <button type="button" class="btn btn-danger" onclick="borrarTodo()">🗑️ Vaciar historial</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ===== TABLA ===== -->
-      <div class="card full-width" id="tableCard">
-        <div class="card-title">📋 Desglose de Mermas Registradas</div>
-        <div class="record-count" id="recordCount">Total registros: 0</div>
-        <div class="table-wrap">
-          <table id="mermasTable">
-            <thead>
-              <tr>
-                <th>Tienda</th>
-                <th>Fecha/Hora</th>
-                <th>Resp.</th>
-                <th>Turno</th>
-                <th>Cat.</th>
-                <th>Prod.</th>
-                <th>Cant.</th>
-                <th>Monto</th>
-                <th>Motivo</th>
-                <th>Coment.</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Toast -->
-  <div id="toast"></div>
-
-  <!-- PIN Modal -->
-  <div id="pinModal" class="modal-overlay" onclick="cerrarPin(event)">
-    <div class="modal-box" onclick="event.stopPropagation()">
-      <h3>🔒 Modo Gerente</h3>
-      <p id="pinModalText">Ingresa el PIN de administrador de la tienda</p>
-      <input type="password" id="pinInput" maxlength="8" placeholder="••••" autocomplete="off" onkeydown="if(event.key==='Enter')validarPin()">
-      <div id="pinError" class="error-msg" style="text-align:center;">PIN incorrecto</div>
-      <div class="modal-actions">
-        <button class="btn btn-secondary" onclick="cerrarPin()">Cancelar</button>
-        <button class="btn btn-primary" onclick="validarPin()">Confirmar</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Cambiar PIN Modal -->
-  <div id="changePinModal" class="modal-overlay" onclick="cerrarChangePin(event)">
-    <div class="modal-box" onclick="event.stopPropagation()">
-      <h3>🔐 Cambiar PIN de tienda</h3>
-      <p>Crea un PIN propio para <strong id="changePinTienda"></strong>. Solo tú y quien conozca el PIN podrán activar modo gerente en esta tienda.</p>
-      <label for="newPin">Nuevo PIN (4-8 dígitos)</label>
-      <input type="password" id="newPin" maxlength="8" placeholder="Nuevo PIN" autocomplete="off">
-      <label for="newPin2">Confirmar PIN</label>
-      <input type="password" id="newPin2" maxlength="8" placeholder="Repite el PIN" autocomplete="off">
-      <div id="changePinError" class="error-msg" style="text-align:center;"></div>
-      <div class="modal-actions">
-        <button class="btn btn-secondary" onclick="saltarCambioPin()">Ahora no</button>
-        <button class="btn btn-primary" onclick="guardarNuevoPin()">Guardar PIN</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Manual Modal -->
-  <div id="manualModal" class="modal-overlay" onclick="cerrarManual(event)">
-    <div class="modal-box" onclick="event.stopPropagation()">
-      <h3>📖 Manual rápido – LÚPICA</h3>
-      <h4>Cómo registrar una merma</h4>
-      <ol>
-        <li>Selecciona la <strong>Tienda</strong></li>
-        <li>Revisa Fecha y Hora (se cargan solas)</li>
-        <li>Escribe tu nombre en <strong>Responsable</strong></li>
-        <li>Confirma el Turno</li>
-        <li>Toca la Categoría → elige Producto → cantidad → motivo</li>
-        <li>Presiona <strong>Registrar Fila</strong></li>
-      </ol>
-      <h4>Modo Gerente (PIN tienda)</h4>
-      <ul>
-        <li>PIN predeterminado por tienda: <strong>2026</strong></li>
-        <li>Cada tienda puede crear su propio PIN</li>
-        <li>Con modo gerente puedes exportar, enviar resumen y vaciar historial</li>
-        <li>Filtra por tienda para ver el waste mensual de cada local</li>
-      </ul>
-      <h4>Datos</h4>
-      <ul>
-        <li>Todo se guarda <strong>solo en este equipo</strong> (localStorage)</li>
-        <li>No se sube a ninguna nube</li>
-        <li>Exporta regularmente como respaldo</li>
-      </ul>
-      <div class="modal-actions" style="margin-top:20px;">
-        <button class="btn btn-primary" onclick="cerrarManual()">Entendido</button>
-      </div>
-    </div>
-  </div>
-		  <script>
-    const CONFIG = {
-      PIN_DEFAULT: "2026",
-      VERSION: "2.0",
-      META_WASTE: 1.5,
-      TIENDA_MADRE: "Talca Las Rastras"
-    };
-
-    const PRODUCTOS = {
-      "Carnes": [
-        { nombre: "Whopper Patty", unidad: "Unidades", precio: 490 },
-        { nombre: "Mega Patty", unidad: "Unidades", precio: 257 },
-        { nombre: "Rebel Patty", unidad: "Unidades", precio: 498 },
-        { nombre: "Hamburguesa XT", unidad: "Unidades", precio: 1053 },
-        { nombre: "Chicken Patty", unidad: "Unidades", precio: 551 },
-        { nombre: "Chicken Patty Vegetal", unidad: "Unidades", precio: 542 },
-        { nombre: "Pollo Jr.", unidad: "Unidades", precio: 344 }
-      ],
-      "Snacks": [
-        { nombre: "Aros de cebolla", unidad: "Unidades", precio: 42 },
-        { nombre: "Empanadas", unidad: "Unidades", precio: 153 },
-        { nombre: "Cheese Pillows", unidad: "Unidades", precio: 110 },
-        { nombre: "Chicken Fries", unidad: "Unidades", precio: 64 },
-        { nombre: "Nuggets", unidad: "Unidades", precio: 70 }
-      ],
-      "Postres": [
-        { nombre: "Pie de Manzana", unidad: "Unidades", precio: 428 },
-        { nombre: "Pie de chocolate", unidad: "Unidades", precio: 1176 },
-        { nombre: "Helado", unidad: "Litros", precio: 1578 },
-        { nombre: "Media Luna", unidad: "Unidades", precio: 250 }
-      ],
-      "Bebidas": [
-        { nombre: "Lata Crush", unidad: "Unidades", precio: 562 },
-        { nombre: "Lata Kem", unidad: "Unidades", precio: 562 },
-        { nombre: "Lata Pepsi", unidad: "Unidades", precio: 562 },
-        { nombre: "Lata Pepsi Zero", unidad: "Unidades", precio: 562 },
-        { nombre: "Red Bull", unidad: "Unidades", precio: 1398 }
-      ],
-      "Pan": [
-        { nombre: "Pan Whopper", unidad: "Unidades", precio: 260 },
-        { nombre: "Pan Hamburguesa", unidad: "Unidades", precio: 157 },
-        { nombre: "Pan Papa", unidad: "Unidades", precio: 302 },
-        { nombre: "Pan Masa Madre", unidad: "Unidades", precio: 351 },
-        { nombre: "Pan Especial", unidad: "Unidades", precio: 196 }
-      ],
-      "Otros": [
-        { nombre: "Lechuga", unidad: "Kg", precio: 3189 },
-        { nombre: "Cebolla", unidad: "Kg", precio: 3430 },
-        { nombre: "Tomate", unidad: "Kg", precio: 1640 },
-        { nombre: "Lechuga Grill", unidad: "Kg", precio: 3700 }
-      ]
-    };
-
-    let categoriaGlobal = "";
-    let unidadGlobal = "";
-    let mermasData = JSON.parse(localStorage.getItem("bk_mermas_data") || "[]");
-    let esGerente = sessionStorage.getItem("bk_es_gerente") === "1";
-    let tiendaPinPendiente = null;
-
-    function entrarApp() {
-      document.getElementById("splash").classList.add("hide");
-      document.getElementById("app").classList.add("show");
-      initApp();
-    }
-
-    function initApp() {
-      const now = new Date();
-      document.getElementById("fecha").value = now.toISOString().split("T")[0];
-      document.getElementById("hora").value = now.toTimeString().slice(0, 5);
-      actualizarTurnoAuto();
-      restaurarTienda();
-      onTiendaChange();
-      llenarFiltroTiendas();
-      restaurarVentaDia();
-      actualizarTabla();
-      actualizarResumen();
-      evaluarRol();
-      actualizarOffline();
-      window.addEventListener("online", actualizarOffline);
-      window.addEventListener("offline", actualizarOffline);
-      if (localStorage.getItem("bk_dark") === "1") document.body.classList.add("dark");
-    }
-
-    function showToast(msg) {
-      const t = document.getElementById("toast");
-      t.textContent = msg;
-      t.classList.add("show");
-      setTimeout(() => t.classList.remove("show"), 2800);
-    }
-
-    function formatearCLP(n) {
-      return "$" + Math.round(n).toLocaleString("es-CL");
-    }
-
-    function formatearPct(n) {
-      return (n || 0).toFixed(2).replace(".", ",") + "%";
-    }
-
-    function determinarTurno(f, h) {
-      const [hh] = h.split(":").map(Number);
-      if (hh >= 6 && hh < 15) return "AM";
-      if (hh >= 15 && hh < 23) return "PM";
-      return "TRASNOCHE";
-    }
-
-    function actualizarTurnoAuto() {
-      const f = document.getElementById("fecha").value;
-      const h = document.getElementById("hora").value;
-      if (f && h) document.getElementById("turno").value = determinarTurno(f, h);
-    }
-
-    function toggleDark() {
-      document.body.classList.toggle("dark");
-      localStorage.setItem("bk_dark", document.body.classList.contains("dark") ? "1" : "0");
-    }
-
-    function actualizarOffline() {
-      const b = document.getElementById("offlineBanner");
-      if (!b) return;
-      navigator.onLine ? b.classList.remove("show") : b.classList.add("show");
-    }
-
-    function guardarTienda() {
-      const t = document.getElementById("tienda").value;
-      if (t) localStorage.setItem("bk_tienda_seleccionada", t);
-    }
-
-    function restaurarTienda() {
-      const t = localStorage.getItem("bk_tienda_seleccionada");
-      if (t) {
-        const sel = document.getElementById("tienda");
-        for (let o of sel.options) if (o.value === t) { sel.value = t; break; }
-      }
-    }
-
-    function getEmails() {
-      try { return JSON.parse(localStorage.getItem("bk_emails_tienda") || "{}"); }
-      catch { return {}; }
-    }
-
-    function onTiendaChange() {
-      guardarTienda();
-      const tienda = document.getElementById("tienda").value;
-      const box = document.getElementById("emailTiendaBox");
-      const input = document.getElementById("emailTienda");
-      const msg = document.getElementById("emailSavedMsg");
-      if (!tienda) { box.classList.remove("show"); return; }
-      box.classList.add("show");
-      const emails = getEmails();
-      input.value = emails[tienda] || "";
-      msg.style.display = emails[tienda] ? "inline" : "none";
-      restaurarVentaDia();
-      actualizarResumen();
-    }
-
-    function guardarEmailTienda() {
-      const tienda = document.getElementById("tienda").value;
-      const email = (document.getElementById("emailTienda").value || "").trim();
-      if (!tienda) { showToast("Selecciona una tienda primero"); return; }
-      if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        showToast("Correo no válido"); return;
-      }
-      const emails = getEmails();
-      if (email) emails[tienda] = email; else delete emails[tienda];
-      localStorage.setItem("bk_emails_tienda", JSON.stringify(emails));
-      const msg = document.getElementById("emailSavedMsg");
-      msg.style.display = email ? "inline" : "none";
-      showToast(email ? "Correo guardado" : "Correo eliminado");
-    }
-
-    function getPins() {
-      try { return JSON.parse(localStorage.getItem("bk_pins_tienda") || "{}"); }
-      catch { return {}; }
-    }
-
-    function getPinTienda(tienda) {
-      const pins = getPins();
-      return pins[tienda] || CONFIG.PIN_DEFAULT;
-    }
-
-    function setPinTienda(tienda, pin) {
-      const pins = getPins();
-      pins[tienda] = pin;
-      localStorage.setItem("bk_pins_tienda", JSON.stringify(pins));
-    }
-
-    function hasCustomPin(tienda) {
-      const pins = getPins();
-      return !!pins[tienda];
-    }
-
-    function toggleGerente() {
-      if (esGerente) {
-        esGerente = false;
-        sessionStorage.removeItem("bk_es_gerente");
-        evaluarRol();
-        showToast("Sesión gerente cerrada");
-        return;
-      }
-      const tienda = document.getElementById("tienda").value;
-      if (!tienda) {
-        showToast("Selecciona una tienda primero");
-        return;
-      }
-      document.getElementById("pinModalText").textContent =
-        "Ingresa el PIN de administrador de " + tienda;
-      document.getElementById("pinModal").classList.add("show");
-      document.getElementById("pinInput").value = "";
-      document.getElementById("pinError").style.display = "none";
-      setTimeout(() => document.getElementById("pinInput").focus(), 100);
-    }
-
-    function cerrarPin(e) {
-      if (e && e.target !== document.getElementById("pinModal") && e.type === "click") return;
-      document.getElementById("pinModal").classList.remove("show");
-    }
-
-    function validarPin() {
-      const tienda = document.getElementById("tienda").value;
-      const pin = document.getElementById("pinInput").value.trim();
-      const pinCorrecto = getPinTienda(tienda);
-
-      if (pin === pinCorrecto) {
-        esGerente = true;
-        sessionStorage.setItem("bk_es_gerente", "1");
-        document.getElementById("pinModal").classList.remove("show");
-        evaluarRol();
-        showToast("Modo Gerente activado");
-        if (!hasCustomPin(tienda) && pin === CONFIG.PIN_DEFAULT) {
-          setTimeout(() => ofrecerCambioPin(tienda), 600);
-        }
-      } else {
-        document.getElementById("pinError").style.display = "block";
-      }
-    }
-
-    function ofrecerCambioPin(tienda) {
-      tiendaPinPendiente = tienda;
-      document.getElementById("changePinTienda").textContent = tienda;
-      document.getElementById("newPin").value = "";
-      document.getElementById("newPin2").value = "";
-      document.getElementById("changePinError").style.display = "none";
-      document.getElementById("changePinModal").classList.add("show");
-    }
-
-    function cerrarChangePin(e) {
-      if (e && e.target !== document.getElementById("changePinModal") && e.type === "click") return;
-      document.getElementById("changePinModal").classList.remove("show");
-    }
-
-    function saltarCambioPin() {
-      document.getElementById("changePinModal").classList.remove("show");
-      showToast("Puedes cambiar el PIN más tarde");
-    }
-
-    function guardarNuevoPin() {
-      const p1 = document.getElementById("newPin").value.trim();
-      const p2 = document.getElementById("newPin2").value.trim();
-      const err = document.getElementById("changePinError");
-
-      if (!/^\d{4,8}$/.test(p1)) {
-        err.textContent = "El PIN debe tener entre 4 y 8 dígitos";
-        err.style.display = "block";
-        return;
-      }
-      if (p1 !== p2) {
-        err.textContent = "Los PIN no coinciden";
-        err.style.display = "block";
-        return;
-      }
-      if (p1 === CONFIG.PIN_DEFAULT) {
-        err.textContent = "Elige un PIN diferente al predeterminado";
-        err.style.display = "block";
-        return;
-      }
-
-      setPinTienda(tiendaPinPendiente, p1);
-      document.getElementById("changePinModal").classList.remove("show");
-      showToast("PIN de " + tiendaPinPendiente + " actualizado");
-    }
-
-    function evaluarRol() {
-      const bar = document.getElementById("adminBar");
-      const st = document.getElementById("adminStatus");
-      const btn = document.getElementById("btnAdmin");
-      const ctrl = document.getElementById("adminControls");
-
-      if (esGerente) {
-        bar.classList.add("active");
-        st.innerHTML = '<span class="on">🔓 Modo Gerente activo</span>';
-        btn.textContent = "Cerrar";
-        ctrl.classList.add("show");
-      } else {
-        bar.classList.remove("active");
-        st.innerHTML = '<span class="off">🔒 Modo Gerente desactivado</span>';
-        btn.textContent = "Activar";
-        ctrl.classList.remove("show");
-      }
-    }
-
-    function seleccionarCategoria(cat, el) {
-      document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
-      el.classList.add("active");
-      categoriaGlobal = cat;
-      const sel = document.getElementById("producto");
-      sel.innerHTML = '<option value="" disabled selected>-- Selecciona producto --</option>';
-      (PRODUCTOS[cat] || []).forEach(p => {
-        const o = document.createElement("option");
-        o.value = p.nombre;
-        o.textContent = p.nombre;
-        o.dataset.unidad = p.unidad;
-        o.dataset.precio = p.precio;
-        sel.appendChild(o);
-      });
-      document.getElementById("unitHint").style.display = "none";
-      document.getElementById("errorCategoria").style.display = "none";
-    }
-
-    function actualizarUnidad() {
-      const sel = document.getElementById("producto");
-      const opt = sel.options[sel.selectedIndex];
-      if (opt && opt.dataset.unidad) {
-        unidadGlobal = opt.dataset.unidad;
-        const hint = document.getElementById("unitHint");
-        hint.textContent = "Unidad: " + unidadGlobal + " · Precio unitario: " + formatearCLP(opt.dataset.precio);
-        hint.style.display = "block";
-      }
-    }
-
-    function limpiarErrores() {
-      ["errorTienda","errorResponsable","errorCategoria","errorProducto","errorCantidad","errorMotivo"]
-        .forEach(id => document.getElementById(id).style.display = "none");
-    }
-
-    function registrarFila() {
-      limpiarErrores();
-      let ok = true;
-
-      const tienda = document.getElementById("tienda").value;
-      const responsable = document.getElementById("responsable").value.trim();
-      const producto = document.getElementById("producto").value;
-      const cantidad = parseFloat(document.getElementById("cantidad").value);
-      const motivo = document.getElementById("motivo").value;
-
-      if (!tienda) { document.getElementById("errorTienda").style.display = "block"; ok = false; }
-      if (!responsable) { document.getElementById("errorResponsable").style.display = "block"; ok = false; }
-      if (!categoriaGlobal) { document.getElementById("errorCategoria").style.display = "block"; ok = false; }
-      if (!producto) { document.getElementById("errorProducto").style.display = "block"; ok = false; }
-      if (!cantidad || cantidad <= 0) { document.getElementById("errorCantidad").style.display = "block"; ok = false; }
-      if (!motivo) { document.getElementById("errorMotivo").style.display = "block"; ok = false; }
-      if (!ok) return;
-
-      const opt = document.getElementById("producto").options[document.getElementById("producto").selectedIndex];
-      const precio = parseFloat(opt.dataset.precio) || 0;
-      const monto = Math.round(cantidad * precio);
-      const ahora = Date.now();
-
-      const dup = mermasData.find(i =>
-        i.tienda === tienda && i.producto === producto && i.motivo === motivo &&
-        i.cantidad === cantidad && (ahora - (i.ts || 0)) < 180000
-      );
-      if (dup) {
-        showToast("Registro muy similar hace menos de 3 min");
-        return;
-      }
-
-      const registro = {
-        id: ahora + Math.random().toString(36).slice(2, 7),
-        ts: ahora,
-        tienda,
-        fecha: document.getElementById("fecha").value,
-        hora: document.getElementById("hora").value,
-        responsable,
-        turno: document.getElementById("turno").value,
-        categoria: categoriaGlobal,
-        producto,
-        cantidad,
-        unidad: unidadGlobal || opt.dataset.unidad || "",
-        monto,
-        motivo,
-        comentarios: document.getElementById("comentarios").value.trim()
-      };
-
-      mermasData.push(registro);
-      localStorage.setItem("bk_mermas_data", JSON.stringify(mermasData));
-
-      document.getElementById("cantidad").value = "";
-      document.getElementById("comentarios").value = "";
-      document.getElementById("motivo").selectedIndex = 0;
-      document.getElementById("producto").selectedIndex = 0;
-      document.getElementById("unitHint").style.display = "none";
-      document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
-      categoriaGlobal = "";
-      unidadGlobal = "";
-
-      actualizarTabla();
-      actualizarResumen();
-      llenarFiltroTiendas();
-      showToast("Merma registrada · " + formatearCLP(monto));
-    }
-
-    function actualizarTabla() {
-      const tbody = document.querySelector("#mermasTable tbody");
-      const filtro = document.getElementById("filtroTiendaResumen")?.value || "";
-      let data = [...mermasData].reverse();
-      if (filtro) data = data.filter(i => i.tienda === filtro);
-
-      document.getElementById("recordCount").textContent = "Total registros: " + data.length;
-      tbody.innerHTML = "";
-
-      data.forEach(i => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${i.tienda}</td>
-          <td>${i.fecha}<br><small>${i.hora}</small></td>
-          <td>${i.responsable}</td>
-          <td>${i.turno}</td>
-          <td>${i.categoria}</td>
-          <td>${i.producto}</td>
-          <td>${i.cantidad} ${i.unidad || ""}</td>
-          <td><strong>${formatearCLP(i.monto)}</strong></td>
-          <td>${i.motivo}</td>
-          <td>${i.comentarios || "—"}</td>
-          <td><button class="btn-del" onclick="eliminarRegistro('${i.id}')" title="Eliminar">✕</button></td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-
-    function eliminarRegistro(id) {
-      if (!esGerente) {
-        showToast("Necesitas modo gerente para eliminar");
-        return;
-      }
-      if (!confirm("¿Eliminar este registro?")) return;
-      mermasData = mermasData.filter(i => i.id !== id);
-      localStorage.setItem("bk_mermas_data", JSON.stringify(mermasData));
-      actualizarTabla();
-      actualizarResumen();
-      showToast("Registro eliminado");
-    }
-
-    function borrarTodo() {
-      if (!esGerente) return;
-      if (!confirm("¿Borrar TODOS los registros? Esta acción no se puede deshacer.")) return;
-      mermasData = [];
-      localStorage.setItem("bk_mermas_data", JSON.stringify(mermasData));
-      actualizarTabla();
-      actualizarResumen();
-      showToast("Historial vaciado");
-    }
-
-    function llenarFiltroTiendas() {
-      const sel = document.getElementById("filtroTiendaResumen");
-      const actual = sel.value;
-      const fijas = [
-        "Costanera Center","Curicó","Guardia Vieja","Hernando de Aguirre II",
-        "Mall Plaza Maule Talca","Mall Plaza Norte","Manuel Montt","Pedro Fontova",
-        "Plaza Norte 2 II","Suecia","Talca Las Rastras"
-      ];
-      const extra = [...new Set(mermasData.map(i => i.tienda).filter(Boolean))];
-      const tiendas = [...new Set([...fijas, ...extra])].sort();
-      sel.innerHTML = '<option value="">Todas las tiendas</option>';
-      tiendas.forEach(t => {
-        const o = document.createElement("option");
-        o.value = t; o.textContent = t;
-        sel.appendChild(o);
-      });
-      if (actual) sel.value = actual;
-    }
-
-    function filtrarData() {
-      const filtro = document.getElementById("filtroTiendaResumen").value;
-      return filtro ? mermasData.filter(i => i.tienda === filtro) : mermasData;
-    }
-
-    function actualizarResumen() {
-      const data = filtrarData();
-      const hoy = document.getElementById("fecha").value || new Date().toISOString().split("T")[0];
-      const mes = hoy.slice(0, 7);
-
-      let totalDia = 0, am = 0, pm = 0, tr = 0, totalMes = 0;
-      data.forEach(i => {
-        if (i.fecha === hoy) {
-          totalDia += i.monto;
-          if (i.turno === "AM") am += i.monto;
-          else if (i.turno === "PM") pm += i.monto;
-          else tr += i.monto;
-        }
-        if (i.fecha && i.fecha.startsWith(mes)) totalMes += i.monto;
-      });
-
-      const elTotal = document.getElementById("summaryTotal");
-      elTotal.textContent = formatearCLP(totalDia);
-      elTotal.className = "stat-value" + (totalDia === 0 ? " zero" : "");
-      document.getElementById("turnoAM").textContent = formatearCLP(am);
-      document.getElementById("turnoPM").textContent = formatearCLP(pm);
-      document.getElementById("turnoTR").textContent = formatearCLP(tr);
-
-      const elMes = document.getElementById("summaryMensual");
-      elMes.textContent = formatearCLP(totalMes);
-      elMes.className = "stat-value" + (totalMes === 0 ? " zero" : "");
-
-      window._totalDia = totalDia;
-      window._totalMes = totalMes;
-      calcularLupa();
-      actualizarTabla();
-    }
-
-    function guardarVentaDia() {
-      const v = document.getElementById("valorBase").value;
-      const f = document.getElementById("fecha").value;
-      const tienda = document.getElementById("filtroTiendaResumen").value ||
-                     document.getElementById("tienda").value || "global";
-      if (v) localStorage.setItem("bk_venta_" + f + "_" + tienda, v);
-    }
-
-    function restaurarVentaDia() {
-      const f = document.getElementById("fecha").value;
-      const tienda = document.getElementById("filtroTiendaResumen").value ||
-                     document.getElementById("tienda").value || "global";
-      const v = localStorage.getItem("bk_venta_" + f + "_" + tienda);
-      document.getElementById("valorBase").value = v || "";
-    }
-
-    function calcularLupa() {
-      const venta = parseFloat(document.getElementById("valorBase").value) || 0;
-      const totalDia = window._totalDia || 0;
-      const totalMes = window._totalMes || 0;
-
-      const pctDia = venta > 0 ? (totalDia / venta) * 100 : 0;
-      const pctMes = venta > 0 ? (totalMes / (venta * 30)) * 100 : 0;
-
-      const elDia = document.getElementById("porcentajeMerma");
-      const elMes = document.getElementById("porcentajeMermaMes");
-      elDia.textContent = formatearPct(pctDia);
-      elMes.textContent = venta > 0 ? formatearPct(pctMes) : "—";
-
-      aplicarColor(elDia, pctDia);
-      aplicarColor(elMes, pctMes);
-
-      const estado = document.getElementById("estadoLupa");
-      if (!venta) {
-        estado.textContent = "Ingresa la venta del día";
-        estado.className = "estado-lupa";
-      } else if (pctDia <= CONFIG.META_WASTE) {
-        estado.textContent = "✓ Dentro de meta (" + CONFIG.META_WASTE + "%)";
-        estado.className = "estado-lupa bueno";
-      } else if (pctDia <= CONFIG.META_WASTE * 1.5) {
-        estado.textContent = "⚠ Sobre meta — revisar operación";
-        estado.className = "estado-lupa alerta";
-      } else {
-        estado.textContent = "✕ Crítico — acción inmediata";
-        estado.className = "estado-lupa critico";
-      }
-    }
-
-    function aplicarColor(el, pct) {
-      el.className = "";
-      if (pct <= CONFIG.META_WASTE) el.classList.add("waste-verde");
-      else if (pct <= CONFIG.META_WASTE * 1.5) el.classList.add("waste-amarillo");
-      else el.classList.add("waste-rojo");
-    }
-
-    function exportarMes() {
-      if (!esGerente) { showToast("Necesitas modo gerente"); return; }
-      const hoy = new Date().toISOString().split("T")[0];
-      const mes = hoy.slice(0, 7);
-      const data = filtrarData().filter(i => i.fecha && i.fecha.startsWith(mes));
-
-      if (data.length === 0) { showToast("No hay datos del mes"); return; }
-
-      let csv = "Tienda,Fecha,Hora,Responsable,Turno,Categoria,Producto,Cantidad,Unidad,Monto,Motivo,Comentarios\n";
-      data.forEach(i => {
-        csv += `"${i.tienda}","${i.fecha}","${i.hora}","${i.responsable}","${i.turno}","${i.categoria}","${i.producto}",${i.cantidad},"${i.unidad||''}",${i.monto},"${i.motivo}","${(i.comentarios||'').replace(/"/g,"'")}"\n`;
-      });
-
-      const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = `LUPICA_mermas_${mes}.csv`;
-      link.click();
-      showToast("CSV exportado");
-    }
-
-    function resumenCorreo() {
-      if (!esGerente) { showToast("Necesitas modo gerente"); return; }
-      const hoy = document.getElementById("fecha").value;
-      const data = filtrarData().filter(i => i.fecha === hoy);
-      const total = data.reduce((s, i) => s + i.monto, 0);
-      const tienda = document.getElementById("filtroTiendaResumen").value || "Todas";
-      const venta = document.getElementById("valorBase").value || "—";
-      const pct = document.getElementById("porcentajeMerma").textContent;
-
-      let body = `RESUMEN MERMAS – LÚPICA\n`;
-      body += `Tienda: ${tienda}\nFecha: ${hoy}\n`;
-      body += `Venta del día: $${venta}\n`;
-      body += `Total merma: ${formatearCLP(total)}\n`;
-      body += `% Waste: ${pct}\n\n`;
-      body += `Detalle:\n`;
-      data.forEach(i => {
-        body += `• ${i.producto} (${i.cantidad} ${i.unidad||""}) – ${formatearCLP(i.monto)} – ${i.motivo}\n`;
-      });
-
-      const emails = getEmails();
-      const to = emails[tienda] || "";
-      const mailto = `mailto:${to}?subject=${encodeURIComponent("Resumen Mermas " + tienda + " " + hoy)}&body=${encodeURIComponent(body)}`;
-      window.location.href = mailto;
-    }
-
-    function abrirManual() {
-      document.getElementById("manualModal").classList.add("show");
-    }
-    function cerrarManual(e) {
-      if (!e || e.target === document.getElementById("manualModal")) {
-        document.getElementById("manualModal").classList.remove("show");
-      }
-    }
-  </script>
+<div id="splash">
+<svg class="splash-logo" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+<rect x="10" y="8" width="180" height="204" rx="40" fill="#F5E6C8"/>
+<path d="M20 50 Q100 8 180 50 L180 70 Q100 35 20 70 Z" fill="#F47321"/>
+<path d="M20 175 Q100 210 180 175 L180 155 Q100 185 20 155 Z" fill="#F47321"/>
+<text x="100" y="115" text-anchor="middle" font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="32" fill="#DA291C">BURGER</text>
+<text x="100" y="152" text-anchor="middle" font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="36" fill="#DA291C">KING</text>
+</svg>
+<div class="splash-title">LÚPICA</div>
+<button class="btn-entrar" onclick="entrarApp()">ENTRAR</button>
+</div>
+<div id="app">
+<div class="offline-banner" id="offlineBanner">Sin conexión — datos en este equipo</div>
+<header class="app-header">
+<div class="brand">
+<div class="brand-icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="white" stroke-width="2.5"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg></div>
+<div class="brand-text"><h1>LÚPICA</h1><span>Registro de mermas + Lupa operativa</span></div>
+</div>
+<div class="header-actions">
+<button class="btn-icon" onclick="toggleDark()" title="Modo oscuro">🌓</button>
+<button class="btn-icon" onclick="abrirManual()" title="Cómo usar">❓</button>
+</div>
+</header>
+<div class="main-grid">
+<div class="card">
+<div class="card-title">Registrar Merma</div>
+<form id="mermaForm" onsubmit="return false;">
+<label for="tienda">Tienda</label>
+<select id="tienda" required onchange="onTiendaChange()">
+<option value="" disabled selected>-- Selecciona la Tienda --</option>
+<option value="Costanera Center">Costanera Center</option>
+<option value="Curicó">Curicó</option>
+<option value="Guardia Vieja">Guardia Vieja</option>
+<option value="Hernando de Aguirre II">Hernando de Aguirre II</option>
+<option value="Mall Plaza Maule Talca">Mall Plaza Maule Talca</option>
+<option value="Mall Plaza Norte">Mall Plaza Norte</option>
+<option value="Manuel Montt">Manuel Montt</option>
+<option value="Pedro Fontova">Pedro Fontova</option>
+<option value="Plaza Norte 2 II">Plaza Norte 2 II</option>
+<option value="Suecia">Suecia</option>
+<option value="Talca Las Rastras">Talca Las Rastras</option>
+</select>
+<div id="errorTienda" class="error-msg">Selecciona una tienda</div>
+<div id="emailTiendaBox" class="email-box">
+<label for="emailTienda">Correo de la tienda (opcional)</label>
+<input type="email" id="emailTienda" placeholder="ej: talca.lasrastras@bk.cl">
+<div class="email-actions">
+<button type="button" class="btn btn-ghost" style="width:auto;padding:8px 14px" onclick="guardarEmailTienda()">Guardar correo</button>
+<span id="emailSavedMsg" class="email-saved">Guardado</span>
+</div>
+</div>
+<div class="form-row">
+<div><label for="fecha">Fecha</label><input type="date" id="fecha" required onchange="actualizarTurnoAuto()"></div>
+<div><label for="hora">Hora</label><input type="time" id="hora" required onchange="actualizarTurnoAuto()"></div>
+</div>
+<label for="responsable">Responsable</label>
+<input type="text" id="responsable" placeholder="Nombre completo" required>
+<div id="errorResponsable" class="error-msg">Ingresa el nombre del responsable</div>
+<label for="turno">Turno</label>
+<select id="turno" required>
+<option value="AM">AM</option>
+<option value="PM">PM</option>
+<option value="TRASNOCHE">TRASNOCHE</option>
+</select>
+<div class="admin-bar" id="adminBar">
+<div class="admin-status" id="adminStatus"><span class="off">Modo Gerente desactivado</span></div>
+<button type="button" class="btn btn-ghost" style="width:auto" id="btnAdmin" onclick="toggleGerente()">Activar</button>
+</div>
+<label>Categoría</label>
+<div class="chip-grid">
+<div class="chip" onclick="seleccionarCategoria('Carnes',this)">Carnes</div>
+<div class="chip" onclick="seleccionarCategoria('Snacks',this)">Snacks</div>
+<div class="chip" onclick="seleccionarCategoria('Postres',this)">Postres</div>
+<div class="chip" onclick="seleccionarCategoria('Bebidas',this)">Bebidas</div>
+<div class="chip" onclick="seleccionarCategoria('Pan',this)">Pan</div>
+<div class="chip" onclick="seleccionarCategoria('Otros',this)">Otros</div>
+</div>
+<div id="errorCategoria" class="error-msg">Selecciona una categoría</div>
+<label for="producto">Producto</label>
+<select id="producto" required onchange="actualizarUnidad()">
+<option value="" disabled selected>-- Elige una categoría primero --</option>
+</select>
+<div id="errorProducto" class="error-msg">Selecciona un producto</div>
+<div class="unit-hint" id="unitHint" style="display:none"></div>
+<label for="cantidad">Cantidad</label>
+<input type="number" id="cantidad" min="0.01" step="any" placeholder="Ingresa cantidad" required>
+<div id="errorCantidad" class="error-msg">La cantidad debe ser mayor a 0</div>
+<label for="motivo">Motivo</label>
+<select id="motivo" required>
+<option value="" disabled selected>-- Selecciona el Motivo --</option>
+<option value="QUEMADO / CRUDO">QUEMADO / CRUDO</option>
+<option value="VENCIDO / CADUCADO">VENCIDO / CADUCADO</option>
+<option value="CAIDA AL PISO">CAIDA AL PISO</option>
+<option value="ERROR PREPARACIÓN">ERROR PREPARACIÓN</option>
+<option value="MAL ESTADO DE ORIGEN">MAL ESTADO DE ORIGEN</option>
+<option value="OPERACION">OPERACION</option>
+</select>
+<div id="errorMotivo" class="error-msg">Selecciona un motivo</div>
+<label for="comentarios">Justificación / Detalles</label>
+<textarea id="comentarios" rows="2" placeholder="Notas opcionales..."></textarea>
+<button type="button" class="btn btn-primary" onclick="registrarFila()">Registrar Fila</button>
+</form>
+</div>
+<div class="card">
+<div class="card-title">Resumen Operativo</div>
+<label for="filtroTiendaResumen">Filtrar por tienda</label>
+<select id="filtroTiendaResumen" onchange="actualizarResumen()">
+<option value="">Todas las tiendas</option>
+</select>
+<div class="summary-grid">
+<div>
+<div class="stat-block"><div class="stat-label">Diario</div><div class="stat-value zero" id="summaryTotal">$0</div></div>
+<div class="turno-row">
+<div class="turno-box"><div class="t-label">AM</div><div class="t-val" id="turnoAM">$0</div></div>
+<div class="turno-box"><div class="t-label">PM</div><div class="t-val" id="turnoPM">$0</div></div>
+<div class="turno-box"><div class="t-label">Tras.</div><div class="t-val" id="turnoTR">$0</div></div>
+</div>
+<div class="stat-block" style="margin-top:16px"><div class="stat-label">Acumulado mensual</div><div class="stat-value zero" id="summaryMensual">$0</div></div>
+</div>
+<div>
+<div class="card-title" style="margin-bottom:12px;border:none;padding:0">Resumen Lupa</div>
+<label for="valorBase">Venta del día ($)</label>
+<input type="number" id="valorBase" placeholder="Ej: 6678202" oninput="guardarVentaDia();calcularLupa()">
+<div class="lupa-item"><span>% Waste (día)</span><strong id="porcentajeMerma" class="waste-verde">0,00%</strong></div>
+<div class="lupa-item"><span>% Waste (mes)</span><strong id="porcentajeMermaMes" class="waste-verde">0,00%</strong></div>
+<div class="lupa-item"><span>Dif Total %</span><span style="display:flex;align-items:center;gap:4px"><input type="number" id="difTotalLupa" step="0.01" placeholder="-0.33" style="width:70px;margin:0;padding:6px;text-align:center" oninput="calcularLupa()"><span>%</span></span></div>
+<div id="estadoLupa" class="estado-lupa">Ingresa la venta del día</div>
+<div class="btn-row" id="adminControls">
+<button type="button" class="btn btn-secondary" onclick="exportarMes()">Exportar mes</button>
+<button type="button" class="btn btn-secondary" onclick="resumenCorreo()">Enviar resumen</button>
+<button type="button" class="btn btn-danger" onclick="borrarTodo()">Vaciar historial</button>
+</div>
+</div>
+</div>
+</div>
+<div class="card full-width">
+<div class="card-title">Desglose de Mermas Registradas</div>
+<div class="record-count" id="recordCount">Total registros: 0</div>
+<div class="table-wrap">
+<table id="mermasTable">
+<thead><tr><th>Tienda</th><th>Fecha/Hora</th><th>Resp.</th><th>Turno</th><th>Cat.</th><th>Prod.</th><th>Cant.</th><th>Monto</th><th>Motivo</th><th>Coment.</th><th></th></tr></thead>
+<tbody></tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div id="toast"></div>
+<div id="pinModal" class="modal-overlay" onclick="cerrarPin(event)">
+<div class="modal-box" onclick="event.stopPropagation()">
+<h3>Modo Gerente</h3>
+<p id="pinModalText">Ingresa el PIN de administrador de la tienda</p>
+<input type="password" id="pinInput" maxlength="8" placeholder="••••" onkeydown="if(event.key==='Enter')validarPin()">
+<div id="pinError" class="error-msg" style="text-align:center">PIN incorrecto</div>
+<div class="modal-actions">
+<button class="btn btn-secondary" onclick="cerrarPin()">Cancelar</button>
+<button class="btn btn-primary" onclick="validarPin()">Confirmar</button>
+</div>
+</div>
+</div>
+<div id="changePinModal" class="modal-overlay" onclick="cerrarChangePin(event)">
+<div class="modal-box" onclick="event.stopPropagation()">
+<h3>Cambiar PIN de tienda</h3>
+<p>Crea un PIN propio para <strong id="changePinTienda"></strong></p>
+<label for="newPin">Nuevo PIN (4-8 dígitos)</label>
+<input type="password" id="newPin" maxlength="8">
+<label for="newPin2">Confirmar PIN</label>
+<input type="password" id="newPin2" maxlength="8">
+<div id="changePinError" class="error-msg" style="text-align:center"></div>
+<div class="modal-actions">
+<button class="btn btn-secondary" onclick="saltarCambioPin()">Ahora no</button>
+<button class="btn btn-primary" onclick="guardarNuevoPin()">Guardar PIN</button>
+</div>
+</div>
+</div>
+<div id="manualModal" class="modal-overlay" onclick="cerrarManual(event)">
+<div class="modal-box" onclick="event.stopPropagation()">
+<h3>Manual rápido – LÚPICA</h3>
+<h4>Cómo registrar</h4>
+<ol>
+<li>Selecciona la Tienda</li>
+<li>Revisa Fecha y Hora</li>
+<li>Escribe el Responsable</li>
+<li>Confirma el Turno</li>
+<li>Categoría → Producto → cantidad → motivo</li>
+<li>Presiona Registrar Fila</li>
+</ol>
+<h4>Modo Gerente</h4>
+<ul>
+<li>PIN predeterminado: <strong>2026</strong></li>
+<li>Permite exportar, enviar resumen y vaciar</li>
+<li>Filtra por tienda para ver waste de cada local</li>
+</ul>
+<div class="modal-actions" style="margin-top:20px">
+<button class="btn btn-primary" onclick="cerrarManual()">Entendido</button>
+</div>
+</div>
+</div>
+
+<script>
+const CONFIG={PIN_DEFAULT:"2026",META_WASTE:1.5};
+const PRODUCTOS={
+"Carnes":[{nombre:"Whopper Patty",unidad:"Unidades",precio:490},{nombre:"Mega Patty",unidad:"Unidades",precio:257},{nombre:"Rebel Patty",unidad:"Unidades",precio:498},{nombre:"Hamburguesa XT",unidad:"Unidades",precio:1053},{nombre:"Chicken Patty",unidad:"Unidades",precio:551},{nombre:"Chicken Patty Vegetal",unidad:"Unidades",precio:542},{nombre:"Pollo Jr.",unidad:"Unidades",precio:344}],
+"Snacks":[{nombre:"Aros de cebolla",unidad:"Unidades",precio:42},{nombre:"Empanadas",unidad:"Unidades",precio:153},{nombre:"Cheese Pillows",unidad:"Unidades",precio:110},{nombre:"Chicken Fries",unidad:"Unidades",precio:64},{nombre:"Nuggets",unidad:"Unidades",precio:70}],
+"Postres":[{nombre:"Pie de Manzana",unidad:"Unidades",precio:428},{nombre:"Pie de chocolate",unidad:"Unidades",precio:1176},{nombre:"Helado",unidad:"Litros",precio:1578},{nombre:"Media Luna",unidad:"Unidades",precio:250}],
+"Bebidas":[{nombre:"Lata Crush",unidad:"Unidades",precio:562},{nombre:"Lata Kem",unidad:"Unidades",precio:562},{nombre:"Lata Pepsi",unidad:"Unidades",precio:562},{nombre:"Lata Pepsi Zero",unidad:"Unidades",precio:562},{nombre:"Red Bull",unidad:"Unidades",precio:1398}],
+"Pan":[{nombre:"Pan Whopper",unidad:"Unidades",precio:260},{nombre:"Pan Hamburguesa",unidad:"Unidades",precio:157},{nombre:"Pan Papa",unidad:"Unidades",precio:302},{nombre:"Pan Masa Madre",unidad:"Unidades",precio:351},{nombre:"Pan Especial",unidad:"Unidades",precio:196}],
+"Otros":[{nombre:"Lechuga",unidad:"Kg",precio:3189},{nombre:"Cebolla",unidad:"Kg",precio:3430},{nombre:"Tomate",unidad:"Kg",precio:1640},{nombre:"Lechuga Grill",unidad:"Kg",precio:3700}]
+};
+let categoriaGlobal="",unidadGlobal="",mermasData=JSON.parse(localStorage.getItem("bk_mermas_data")||"[]"),esGerente=sessionStorage.getItem("bk_es_gerente")==="1",tiendaPinPendiente=null;
+function entrarApp(){document.getElementById("splash").classList.add("hide");document.getElementById("app").classList.add("show");initApp()}
+function initApp(){const n=new Date();document.getElementById("fecha").value=n.toISOString().split("T")[0];document.getElementById("hora").value=n.toTimeString().slice(0,5);actualizarTurnoAuto();restaurarTienda();onTiendaChange();llenarFiltroTiendas();restaurarVentaDia();actualizarTabla();actualizarResumen();evaluarRol();actualizarOffline();window.addEventListener("online",actualizarOffline);window.addEventListener("offline",actualizarOffline);if(localStorage.getItem("bk_dark")==="1")document.body.classList.add("dark")}
+function showToast(m){const t=document.getElementById("toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2800)}
+function formatearCLP(n){return"$"+Math.round(n).toLocaleString("es-CL")}
+function formatearPct(n){return(n||0).toFixed(2).replace(".",",")+"%"}
+function determinarTurno(f,h){const[hh]=h.split(":").map(Number);if(hh>=6&&hh<15)return"AM";if(hh>=15&&hh<23)return"PM";return"TRASNOCHE"}
+function actualizarTurnoAuto(){const f=document.getElementById("fecha").value,h=document.getElementById("hora").value;if(f&&h)document.getElementById("turno").value=determinarTurno(f,h)}
+function toggleDark(){document.body.classList.toggle("dark");localStorage.setItem("bk_dark",document.body.classList.contains("dark")?"1":"0")}
+function actualizarOffline(){const b=document.getElementById("offlineBanner");if(!b)return;navigator.onLine?b.classList.remove("show"):b.classList.add("show")}
+function guardarTienda(){const t=document.getElementById("tienda").value;if(t)localStorage.setItem("bk_tienda_seleccionada",t)}
+function restaurarTienda(){const t=localStorage.getItem("bk_tienda_seleccionada");if(t){const s=document.getElementById("tienda");for(let o of s.options)if(o.value===t){s.value=t;break}}}
+function getEmails(){try{return JSON.parse(localStorage.getItem("bk_emails_tienda")||"{}")}catch{return{}}}
+function onTiendaChange(){guardarTienda();const tienda=document.getElementById("tienda").value,box=document.getElementById("emailTiendaBox"),input=document.getElementById("emailTienda"),msg=document.getElementById("emailSavedMsg");if(!tienda){box.classList.remove("show");return}box.classList.add("show");const emails=getEmails();input.value=emails[tienda]||"";msg.style.display=emails[tienda]?"inline":"none";restaurarVentaDia();actualizarResumen()}
+function guardarEmailTienda(){const tienda=document.getElementById("tienda").value,email=(document.getElementById("emailTienda").value||"").trim();if(!tienda){showToast("Selecciona una tienda primero");return}if(email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){showToast("Correo no válido");return}const emails=getEmails();if(email)emails[tienda]=email;else delete emails[tienda];localStorage.setItem("bk_emails_tienda",JSON.stringify(emails));document.getElementById("emailSavedMsg").style.display=email?"inline":"none";showToast(email?"Correo guardado":"Correo eliminado")}
+function getPins(){try{return JSON.parse(localStorage.getItem("bk_pins_tienda")||"{}")}catch{return{}}}
+function getPinTienda(t){return getPins()[t]||CONFIG.PIN_DEFAULT}
+function setPinTienda(t,p){const pins=getPins();pins[t]=p;localStorage.setItem("bk_pins_tienda",JSON.stringify(pins))}
+function hasCustomPin(t){return!!getPins()[t]}
+function toggleGerente(){if(esGerente){esGerente=false;sessionStorage.removeItem("bk_es_gerente");evaluarRol();showToast("Sesión gerente cerrada");return}const tienda=document.getElementById("tienda").value;if(!tienda){showToast("Selecciona una tienda primero");return}document.getElementById("pinModalText").textContent="Ingresa el PIN de administrador de "+tienda;document.getElementById("pinModal").classList.add("show");document.getElementById("pinInput").value="";document.getElementById("pinError").style.display="none";setTimeout(()=>document.getElementById("pinInput").focus(),100)}
+function cerrarPin(e){if(e&&e.target!==document.getElementById("pinModal")&&e.type==="click")return;document.getElementById("pinModal").classList.remove("show")}
+function validarPin(){const tienda=document.getElementById("tienda").value,pin=document.getElementById("pinInput").value.trim();if(pin===getPinTienda(tienda)){esGerente=true;sessionStorage.setItem("bk_es_gerente","1");document.getElementById("pinModal").classList.remove("show");evaluarRol();showToast("Modo Gerente activado");if(!hasCustomPin(tienda)&&pin===CONFIG.PIN_DEFAULT)setTimeout(()=>ofrecerCambioPin(tienda),600)}else document.getElementById("pinError").style.display="block"}
+function ofrecerCambioPin(t){tiendaPinPendiente=t;document.getElementById("changePinTienda").textContent=t;document.getElementById("newPin").value="";document.getElementById("newPin2").value="";document.getElementById("changePinError").style.display="none";document.getElementById("changePinModal").classList.add("show")}
+function cerrarChangePin(e){if(e&&e.target!==document.getElementById("changePinModal")&&e.type==="click")return;document.getElementById("changePinModal").classList.remove("show")}
+function saltarCambioPin(){document.getElementById("changePinModal").classList.remove("show");showToast("Puedes cambiar el PIN más tarde")}
+function guardarNuevoPin(){const p1=document.getElementById("newPin").value.trim(),p2=document.getElementById("newPin2").value.trim(),err=document.getElementById("changePinError");if(!/^\d{4,8}$/.test(p1)){err.textContent="El PIN debe tener entre 4 y 8 dígitos";err.style.display="block";return}if(p1!==p2){err.textContent="Los PIN no coinciden";err.style.display="block";return}if(p1===CONFIG.PIN_DEFAULT){err.textContent="Elige un PIN diferente al predeterminado";err.style.display="block";return}setPinTienda(tiendaPinPendiente,p1);document.getElementById("changePinModal").classList.remove("show");showToast("PIN actualizado")}
+function evaluarRol(){const bar=document.getElementById("adminBar"),st=document.getElementById("adminStatus"),btn=document.getElementById("btnAdmin"),ctrl=document.getElementById("adminControls");if(esGerente){bar.classList.add("active");st.innerHTML='<span class="on">Modo Gerente activo</span>';btn.textContent="Cerrar";ctrl.classList.add("show")}else{bar.classList.remove("active");st.innerHTML='<span class="off">Modo Gerente desactivado</span>';btn.textContent="Activar";ctrl.classList.remove("show")}}
+function seleccionarCategoria(cat,el){document.querySelectorAll(".chip").forEach(c=>c.classList.remove("active"));el.classList.add("active");categoriaGlobal=cat;const sel=document.getElementById("producto");sel.innerHTML='<option value="" disabled selected>-- Selecciona producto --</option>';(PRODUCTOS[cat]||[]).forEach(p=>{const o=document.createElement("option");o.value=p.nombre;o.textContent=p.nombre;o.dataset.unidad=p.unidad;o.dataset.precio=p.precio;sel.appendChild(o)});document.getElementById("unitHint").style.display="none";document.getElementById("errorCategoria").style.display="none"}
+function actualizarUnidad(){const sel=document.getElementById("producto"),opt=sel.options[sel.selectedIndex];if(opt&&opt.dataset.unidad){unidadGlobal=opt.dataset.unidad;const h=document.getElementById("unitHint");h.textContent="Unidad: "+unidadGlobal+" · Precio: "+formatearCLP(opt.dataset.precio);h.style.display="block"}}
+function limpiarErrores(){["errorTienda","errorResponsable","errorCategoria","errorProducto","errorCantidad","errorMotivo"].forEach(id=>document.getElementById(id).style.display="none")}
+function registrarFila(){limpiarErrores();let ok=true;const tienda=document.getElementById("tienda").value,responsable=document.getElementById("responsable").value.trim(),producto=document.getElementById("producto").value,cantidad=parseFloat(document.getElementById("cantidad").value),motivo=document.getElementById("motivo").value;if(!tienda){document.getElementById("errorTienda").style.display="block";ok=false}if(!responsable){document.getElementById("errorResponsable").style.display="block";ok=false}if(!categoriaGlobal){document.getElementById("errorCategoria").style.display="block";ok=false}if(!producto){document.getElementById("errorProducto").style.display="block";ok=false}if(!cantidad||cantidad<=0){document.getElementById("errorCantidad").style.display="block";ok=false}if(!motivo){document.getElementById("errorMotivo").style.display="block";ok=false}if(!ok)return;const opt=document.getElementById("producto").options[document.getElementById("producto").selectedIndex],precio=parseFloat(opt.dataset.precio)||0,monto=Math.round(cantidad*precio),ahora=Date.now();const dup=mermasData.find(i=>i.tienda===tienda&&i.producto===producto&&i.motivo===motivo&&i.cantidad===cantidad&&(ahora-(i.ts||0))<180000);if(dup){showToast("Registro muy similar hace menos de 3 min");return}mermasData.push({id:ahora+Math.random().toString(36).slice(2,7),ts:ahora,tienda,fecha:document.getElementById("fecha").value,hora:document.getElementById("hora").value,responsable,turno:document.getElementById("turno").value,categoria:categoriaGlobal,producto,cantidad,unidad:unidadGlobal||opt.dataset.unidad||"",monto,motivo,comentarios:document.getElementById("comentarios").value.trim()});localStorage.setItem("bk_mermas_data",JSON.stringify(mermasData));document.getElementById("cantidad").value="";document.getElementById("comentarios").value="";document.getElementById("motivo").selectedIndex=0;document.getElementById("producto").selectedIndex=0;document.getElementById("unitHint").style.display="none";document.querySelectorAll(".chip").forEach(c=>c.classList.remove("active"));categoriaGlobal="";unidadGlobal="";actualizarTabla();actualizarResumen();llenarFiltroTiendas();showToast("Merma registrada · "+formatearCLP(monto))}
+function actualizarTabla(){const tbody=document.querySelector("#mermasTable tbody"),filtro=document.getElementById("filtroTiendaResumen")?.value||"";let data=[...mermasData].reverse();if(filtro)data=data.filter(i=>i.tienda===filtro);document.getElementById("recordCount").textContent="Total registros: "+data.length;tbody.innerHTML="";data.forEach(i=>{const tr=document.createElement("tr");tr.innerHTML=`<td>${i.tienda}</td><td>${i.fecha}<br><small>${i.hora}</small></td><td>${i.responsable}</td><td>${i.turno}</td><td>${i.categoria}</td><td>${i.producto}</td><td>${i.cantidad} ${i.unidad||""}</td><td><strong>${formatearCLP(i.monto)}</strong></td><td>${i.motivo}</td><td>${i.comentarios||"—"}</td><td><button class="btn-del" onclick="eliminarRegistro('${i.id}')">✕</button></td>`;tbody.appendChild(tr)})}
+function eliminarRegistro(id){if(!esGerente){showToast("Necesitas modo gerente");return}if(!confirm("¿Eliminar este registro?"))return;mermasData=mermasData.filter(i=>i.id!==id);localStorage.setItem("bk_mermas_data",JSON.stringify(mermasData));actualizarTabla();actualizarResumen();showToast("Registro eliminado")}
+function borrarTodo(){if(!esGerente)return;if(!confirm("¿Borrar TODOS los registros?"))return;mermasData=[];localStorage.setItem("bk_mermas_data",JSON.stringify(mermasData));actualizarTabla();actualizarResumen();showToast("Historial vaciado")}
+function llenarFiltroTiendas(){const sel=document.getElementById("filtroTiendaResumen"),actual=sel.value;const fijas=["Costanera Center","Curicó","Guardia Vieja","Hernando de Aguirre II","Mall Plaza Maule Talca","Mall Plaza Norte","Manuel Montt","Pedro Fontova","Plaza Norte 2 II","Suecia","Talca Las Rastras"];const extra=[...new Set(mermasData.map(i=>i.tienda).filter(Boolean))];const tiendas=[...new Set([...fijas,...extra])].sort();sel.innerHTML='<option value="">Todas las tiendas</option>';tiendas.forEach(t=>{const o=document.createElement("option");o.value=t;o.textContent=t;sel.appendChild(o)});if(actual)sel.value=actual}
+function filtrarData(){const f=document.getElementById("filtroTiendaResumen").value;return f?mermasData.filter(i=>i.tienda===f):mermasData}
+function actualizarResumen(){const data=filtrarData(),hoy=document.getElementById("fecha").value||new Date().toISOString().split("T")[0],mes=hoy.slice(0,7);let totalDia=0,am=0,pm=0,tr=0,totalMes=0;data.forEach(i=>{if(i.fecha===hoy){totalDia+=i.monto;if(i.turno==="AM")am+=i.monto;else if(i.turno==="PM")pm+=i.monto;else tr+=i.monto}if(i.fecha&&i.fecha.startsWith(mes))totalMes+=i.monto});const elT=document.getElementById("summaryTotal");elT.textContent=formatearCLP(totalDia);elT.className="stat-value"+(totalDia===0?" zero":"");document.getElementById("turnoAM").textContent=formatearCLP(am);document.getElementById("turnoPM").textContent=formatearCLP(pm);document.getElementById("turnoTR").textContent=formatearCLP(tr);const elM=document.getElementById("summaryMensual");elM.textContent=formatearCLP(totalMes);elM.className="stat-value"+(totalMes===0?" zero":"");window._totalDia=totalDia;window._totalMes=totalMes;calcularLupa();actualizarTabla()}
+function guardarVentaDia(){const v=document.getElementById("valorBase").value,f=document.getElementById("fecha").value,t=document.getElementById("filtroTiendaResumen").value||document.getElementById("tienda").value||"global";if(v)localStorage.setItem("bk_venta_"+f+"_"+t,v)}
+function restaurarVentaDia(){const f=document.getElementById("fecha").value,t=document.getElementById("filtroTiendaResumen").value||document.getElementById("tienda").value||"global";document.getElementById("valorBase").value=localStorage.getItem("bk_venta_"+f+"_"+t)||""}
+function calcularLupa(){const venta=parseFloat(document.getElementById("valorBase").value)||0,totalDia=window._totalDia||0,totalMes=window._totalMes||0;const pctDia=venta>0?(totalDia/venta)*100:0,pctMes=venta>0?(totalMes/(venta*30))*100:0;const elD=document.getElementById("porcentajeMerma"),elM=document.getElementById("porcentajeMermaMes");elD.textContent=formatearPct(pctDia);elM.textContent=venta>0?formatearPct(pctMes):"—";aplicarColor(elD,pctDia);aplicarColor(elM,pctMes);const est=document.getElementById("estadoLupa");if(!venta){est.textContent="Ingresa la venta del día";est.className="estado-lupa"}else if(pctDia<=CONFIG.META_WASTE){est.textContent="Dentro de meta ("+CONFIG.META_WASTE+"%)";est.className="estado-lupa bueno"}else if(pctDia<=CONFIG.META_WASTE*1.5){est.textContent="Sobre meta — revisar";est.className="estado-lupa alerta"}else{est.textContent="Crítico — acción inmediata";est.className="estado-lupa critico"}}
+function aplicarColor(el,pct){el.className="";if(pct<=CONFIG.META_WASTE)el.classList.add("waste-verde");else if(pct<=CONFIG.META_WASTE*1.5)el.classList.add("waste-amarillo");else el.classList.add("waste-rojo")}
+function exportarMes(){if(!esGerente){showToast("Necesitas modo gerente");return}const hoy=new Date().toISOString().split("T")[0],mes=hoy.slice(0,7),data=filtrarData().filter(i=>i.fecha&&i.fecha.startsWith(mes));if(!data.length){showToast("No hay datos del mes");return}let csv="Tienda,Fecha,Hora,Responsable,Turno,Categoria,Producto,Cantidad,Unidad,Monto,Motivo,Comentarios\n";data.forEach(i=>{csv+=`"${i.tienda}","${i.fecha}","${i.hora}","${i.responsable}","${i.turno}","${i.categoria}","${i.producto}",${i.cantidad},"${i.unidad||''}",${i.monto},"${i.motivo}","${(i.comentarios||'').replace(/"/g,"'")}"\n`});const blob=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8;"}),link=document.createElement("a");link.href=URL.createObjectURL(blob);link.download=`LUPICA_mermas_${mes}.csv`;link.click();showToast("CSV exportado")}
+function resumenCorreo(){if(!esGerente){showToast("Necesitas modo gerente");return}const hoy=document.getElementById("fecha").value,data=filtrarData().filter(i=>i.fecha===hoy),total=data.reduce((s,i)=>s+i.monto,0),tienda=document.getElementById("filtroTiendaResumen").value||"Todas",venta=document.getElementById("valorBase").value||"—",pct=document.getElementById("porcentajeMerma").textContent;let body=`RESUMEN MERMAS – LÚPICA\nTienda: ${tienda}\nFecha: ${hoy}\nVenta: $${venta}\nTotal merma: ${formatearCLP(total)}\n% Waste: ${pct}\n\n`;data.forEach(i=>{body+=`• ${i.producto} (${i.cantidad}) – ${formatearCLP(i.monto)} – ${i.motivo}\n`});const to=getEmails()[tienda]||"";window.location.href=`mailto:${to}?subject=${encodeURIComponent("Resumen Mermas "+tienda+" "+hoy)}&body=${encodeURIComponent(body)}`}
+function abrirManual(){document.getElementById("manualModal").classList.add("show")}
+function cerrarManual(e){if(!e||e.target===document.getElementById("manualModal"))document.getElementById("manualModal").classList.remove("show")}
+</script>
 </body>
 </html>
